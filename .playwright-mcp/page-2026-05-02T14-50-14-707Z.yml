@@ -1,0 +1,67 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e20] [cursor=pointer]:
+    - img [ref=e21]
+  - alert [ref=e24]
+  - generic [ref=e25]:
+    - complementary [ref=e26]:
+      - generic [ref=e28]:
+        - generic [ref=e30]: W
+        - generic [ref=e31]: WPP Intelligence
+      - link "Search contacts…" [ref=e33] [cursor=pointer]:
+        - /url: /contacts
+        - img [ref=e34]
+        - generic [ref=e37]: Search contacts…
+      - navigation [ref=e38]:
+        - link "Contacts" [ref=e39] [cursor=pointer]:
+          - /url: /contacts
+          - img [ref=e40]
+          - text: Contacts
+        - link "Organisations" [ref=e45] [cursor=pointer]:
+          - /url: /organisations
+          - img [ref=e46]
+          - text: Organisations
+        - link "Import" [ref=e50] [cursor=pointer]:
+          - /url: /import
+          - img [ref=e51]
+          - text: Import
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - paragraph
+          - paragraph [ref=e56]: Ogilvy · account director
+        - button "Sign out" [ref=e58]:
+          - img [ref=e59]
+          - text: Sign out
+    - main [ref=e62]:
+      - generic [ref=e255]:
+        - link "Back to organisations" [ref=e256] [cursor=pointer]:
+          - /url: /organisations
+          - img [ref=e257]
+          - text: Back to organisations
+        - generic [ref=e260]:
+          - img [ref=e262]
+          - generic [ref=e266]:
+            - heading "VML" [level=1] [ref=e267]
+            - paragraph [ref=e268]: 1 contact
+        - generic [ref=e269]:
+          - generic [ref=e270]:
+            - heading "Contacts at VML" [level=2] [ref=e271]
+            - link "JS Jane Smith Marketing Director Ogilvy Warm" [ref=e273] [cursor=pointer]:
+              - /url: /contacts/d41216be-9c9d-427b-9175-edd734bbe2e1
+              - generic [ref=e275]: JS
+              - generic [ref=e276]:
+                - paragraph [ref=e277]: Jane Smith
+                - paragraph [ref=e278]: Marketing Director
+              - generic [ref=e279]:
+                - generic [ref=e280]: Ogilvy
+                - generic [ref=e281]: Warm
+            - generic [ref=e283]:
+              - heading "Organisation notes" [level=2] [ref=e284]
+              - paragraph [ref=e286]: No intelligence notes yet. Add the first one below.
+              - button "Add intelligence note" [ref=e287]:
+                - img [ref=e288]
+                - text: Add intelligence note
+          - generic [ref=e290]:
+            - heading "Agency coverage" [level=3] [ref=e291]
+            - generic [ref=e292]:
+              - generic [ref=e293]: Ogilvy
+              - generic [ref=e294]: 1 contact

@@ -1,0 +1,83 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e87] [cursor=pointer]:
+    - generic [ref=e90]:
+      - text: Rendering
+      - generic [ref=e91]:
+        - generic [ref=e92]: .
+        - generic [ref=e93]: .
+        - generic [ref=e94]: .
+  - alert [ref=e24]
+  - generic [ref=e25]:
+    - complementary [ref=e26]:
+      - generic [ref=e28]:
+        - generic [ref=e30]: W
+        - generic [ref=e31]: WPP Intelligence
+      - link "Search contacts…" [ref=e33] [cursor=pointer]:
+        - /url: /contacts
+        - img [ref=e34]
+        - generic [ref=e37]: Search contacts…
+      - navigation [ref=e38]:
+        - link "Contacts" [ref=e39] [cursor=pointer]:
+          - /url: /contacts
+          - img [ref=e40]
+          - text: Contacts
+        - link "Organisations" [ref=e45] [cursor=pointer]:
+          - /url: /organisations
+          - img [ref=e46]
+          - text: Organisations
+        - link "Import" [ref=e50] [cursor=pointer]:
+          - /url: /import
+          - img [ref=e51]
+          - text: Import
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - paragraph
+          - paragraph [ref=e56]: No agency · account director
+        - button "Sign out" [ref=e58]:
+          - img [ref=e59]
+          - text: Sign out
+    - main [ref=e62]:
+      - generic [ref=e64]:
+        - heading "Select your agency" [level=2] [ref=e65]
+        - paragraph [ref=e66]: We couldn't determine your agency from your email domain. Pick the agency you work at to continue.
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - generic [ref=e69]: Agency
+            - combobox [ref=e70]:
+              - option "Select agency…"
+              - option "Ogilvy" [selected]
+              - option "GroupM"
+              - option "Grey"
+              - option "Wunderman Thompson"
+              - option "VMLY&R"
+              - option "Mindshare"
+              - option "MediaCom"
+          - button "Saving…" [disabled] [ref=e95]
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - heading "Contacts" [level=1] [ref=e76]
+            - paragraph [ref=e77]: 0 contacts
+          - link "Add contact" [ref=e78] [cursor=pointer]:
+            - /url: /contacts/new
+            - img [ref=e79]
+            - text: Add contact
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - img
+            - textbox "Search contacts, orgs, titles…" [ref=e82]
+          - combobox [ref=e83]:
+            - option "All agencies" [selected]
+            - option "Ogilvy"
+            - option "GroupM"
+            - option "Grey"
+            - option "Wunderman Thompson"
+            - option "VMLY&R"
+            - option "Mindshare"
+            - option "MediaCom"
+          - combobox [ref=e84]:
+            - option "All strengths" [selected]
+            - option "Strong"
+            - option "Warm"
+            - option "Cold"
+        - generic [ref=e86]: No contacts yet. Add the first one.

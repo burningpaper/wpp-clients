@@ -1,0 +1,102 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e217] [cursor=pointer]:
+    - generic [ref=e220]:
+      - text: Rendering
+      - generic [ref=e221]:
+        - generic [ref=e222]: .
+        - generic [ref=e223]: .
+        - generic [ref=e224]: .
+  - alert [ref=e24]
+  - generic [ref=e25]:
+    - complementary [ref=e26]:
+      - generic [ref=e28]:
+        - generic [ref=e30]: W
+        - generic [ref=e31]: WPP Intelligence
+      - link "Search contacts…" [ref=e33] [cursor=pointer]:
+        - /url: /contacts
+        - img [ref=e34]
+        - generic [ref=e37]: Search contacts…
+      - navigation [ref=e38]:
+        - link "Contacts" [ref=e39] [cursor=pointer]:
+          - /url: /contacts
+          - img [ref=e40]
+          - text: Contacts
+        - link "Organisations" [ref=e45] [cursor=pointer]:
+          - /url: /organisations
+          - img [ref=e46]
+          - text: Organisations
+        - link "Import" [ref=e50] [cursor=pointer]:
+          - /url: /import
+          - img [ref=e51]
+          - text: Import
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - paragraph
+          - paragraph [ref=e56]: Ogilvy · account director
+        - button "Sign out" [ref=e58]:
+          - img [ref=e59]
+          - text: Sign out
+    - main [ref=e62]:
+      - generic [ref=e138]:
+        - link "Back to contacts" [ref=e139] [cursor=pointer]:
+          - /url: /contacts
+          - img [ref=e140]
+          - text: Back to contacts
+        - generic [ref=e142]:
+          - generic [ref=e143]:
+            - generic [ref=e145]:
+              - generic [ref=e147]: JS
+              - generic [ref=e148]:
+                - heading "Jane Smith" [level=1] [ref=e149]
+                - generic [ref=e150]:
+                  - generic [ref=e151]:
+                    - img [ref=e152]
+                    - text: Marketing Director
+                  - link "VML" [ref=e155] [cursor=pointer]:
+                    - /url: /organisations/5879df5e-21b5-4243-9439-14f0e592eb11
+                    - img [ref=e156]
+                    - text: VML
+                  - link "jane.smith@vml.com" [ref=e160] [cursor=pointer]:
+                    - /url: mailto:jane.smith@vml.com
+                    - img [ref=e161]
+                    - text: jane.smith@vml.com
+                - generic [ref=e164]:
+                  - img [ref=e165]
+                  - text: Last updated 02 May 2026
+            - generic [ref=e168]:
+              - heading "Intelligence notes(0)" [level=2] [ref=e169]:
+                - text: Intelligence notes
+                - generic [ref=e170]: (0)
+              - paragraph [ref=e172]: No intelligence notes yet. Add the first one below.
+              - button "Add intelligence note" [ref=e225]:
+                - img [ref=e226]
+                - text: Add intelligence note
+          - generic [ref=e175]:
+            - generic [ref=e176]:
+              - heading "Agency relationships" [level=2] [ref=e177]
+              - generic [ref=e179]:
+                - generic [ref=e180]: Ogilvy
+                - generic [ref=e181]: Warm
+            - generic [ref=e183]:
+              - heading "Edit contact" [level=2] [ref=e184]
+              - generic [ref=e185]:
+                - generic [ref=e186]:
+                  - generic [ref=e187]:
+                    - generic [ref=e188]: First name
+                    - textbox [ref=e189]: Jane
+                  - generic [ref=e190]:
+                    - generic [ref=e191]: Last name
+                    - textbox [ref=e192]: Smith
+                - generic [ref=e193]:
+                  - generic [ref=e194]: Job title
+                  - textbox [ref=e195]: Marketing Director
+                - generic [ref=e196]:
+                  - generic [ref=e197]: Email
+                  - textbox [ref=e198]: jane.smith@vml.com
+                - generic [ref=e199]:
+                  - generic [ref=e200]: Relationship strength
+                  - combobox [ref=e201]:
+                    - option "Cold"
+                    - option "Warm" [selected]
+                    - option "Strong"
+                - button "Save changes" [ref=e202]

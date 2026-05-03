@@ -1,0 +1,15 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e6]: W
+      - heading "WPP SA Intelligence" [level=1] [ref=e7]
+      - paragraph [ref=e8]: Client contact & relationship database
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: Work email
+        - textbox "you@ogilvy.com" [ref=e12]
+      - button "Sign in" [ref=e13]
+    - paragraph [ref=e14]: WPP SA staff only · Internal use
+  - button "Open Next.js Dev Tools" [ref=e20] [cursor=pointer]:
+    - img [ref=e21]
+  - alert [ref=e24]

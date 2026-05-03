@@ -1,0 +1,45 @@
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e20] [cursor=pointer]:
+    - img [ref=e21]
+  - alert [ref=e24]
+  - generic [ref=e25]:
+    - complementary [ref=e26]:
+      - generic [ref=e28]:
+        - generic [ref=e30]: W
+        - generic [ref=e31]: WPP Intelligence
+      - link "Search contacts…" [ref=e33] [cursor=pointer]:
+        - /url: /contacts
+        - img [ref=e34]
+        - generic [ref=e37]: Search contacts…
+      - navigation [ref=e38]:
+        - link "Contacts" [ref=e39] [cursor=pointer]:
+          - /url: /contacts
+          - img [ref=e40]
+          - text: Contacts
+        - link "Organisations" [active] [ref=e45] [cursor=pointer]:
+          - /url: /organisations
+          - img [ref=e46]
+          - text: Organisations
+        - link "Import" [ref=e50] [cursor=pointer]:
+          - /url: /import
+          - img [ref=e51]
+          - text: Import
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - paragraph
+          - paragraph [ref=e56]: Ogilvy · account director
+        - button "Sign out" [ref=e58]:
+          - img [ref=e59]
+          - text: Sign out
+    - main [ref=e62]:
+      - generic [ref=e238]:
+        - generic [ref=e240]:
+          - heading "Organisations" [level=1] [ref=e241]
+          - paragraph [ref=e242]: 1 organisation
+        - textbox "Search organisations…" [ref=e244]
+        - link "VML 1 contact" [ref=e246] [cursor=pointer]:
+          - /url: /organisations/5879df5e-21b5-4243-9439-14f0e592eb11
+          - img [ref=e248]
+          - generic [ref=e252]:
+            - paragraph [ref=e253]: VML
+            - paragraph [ref=e254]: 1 contact

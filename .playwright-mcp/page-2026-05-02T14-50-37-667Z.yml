@@ -1,0 +1,39 @@
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e295] [cursor=pointer]:
+    - generic [ref=e298]:
+      - text: Rendering
+      - generic [ref=e299]:
+        - generic [ref=e300]: .
+        - generic [ref=e301]: .
+        - generic [ref=e302]: .
+  - alert [ref=e24]
+  - generic [ref=e25]:
+    - complementary [ref=e26]:
+      - generic [ref=e28]:
+        - generic [ref=e30]: W
+        - generic [ref=e31]: WPP Intelligence
+      - link "Search contacts…" [ref=e33] [cursor=pointer]:
+        - /url: /contacts
+        - img [ref=e34]
+        - generic [ref=e37]: Search contacts…
+      - navigation [ref=e38]:
+        - link "Contacts" [ref=e39] [cursor=pointer]:
+          - /url: /contacts
+          - img [ref=e40]
+          - text: Contacts
+        - link "Organisations" [ref=e45] [cursor=pointer]:
+          - /url: /organisations
+          - img [ref=e46]
+          - text: Organisations
+        - link "Import" [active] [ref=e50] [cursor=pointer]:
+          - /url: /import
+          - img [ref=e51]
+          - text: Import
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - paragraph
+          - paragraph [ref=e56]: Ogilvy · account director
+        - button "Sign out" [ref=e58]:
+          - img [ref=e59]
+          - text: Sign out
+    - main [ref=e62]

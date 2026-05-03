@@ -1,0 +1,105 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e20] [cursor=pointer]:
+    - img [ref=e21]
+  - alert [ref=e24]
+  - generic [ref=e25]:
+    - complementary [ref=e26]:
+      - generic [ref=e28]:
+        - generic [ref=e30]: W
+        - generic [ref=e31]: WPP Intelligence
+      - link "Search contacts…" [ref=e33] [cursor=pointer]:
+        - /url: /contacts
+        - img [ref=e34]
+        - generic [ref=e37]: Search contacts…
+      - navigation [ref=e38]:
+        - link "Contacts" [ref=e39] [cursor=pointer]:
+          - /url: /contacts
+          - img [ref=e40]
+          - text: Contacts
+        - link "Organisations" [ref=e45] [cursor=pointer]:
+          - /url: /organisations
+          - img [ref=e46]
+          - text: Organisations
+        - link "Import" [ref=e50] [cursor=pointer]:
+          - /url: /import
+          - img [ref=e51]
+          - text: Import
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - paragraph
+          - paragraph [ref=e56]: Ogilvy · account director
+        - button "Sign out" [ref=e58]:
+          - img [ref=e59]
+          - text: Sign out
+    - main [ref=e62]:
+      - generic [ref=e328]:
+        - link "Back to contacts" [ref=e329] [cursor=pointer]:
+          - /url: /contacts
+          - img [ref=e330]
+          - text: Back to contacts
+        - generic [ref=e332]:
+          - generic [ref=e333]:
+            - generic [ref=e335]:
+              - generic [ref=e337]: JS
+              - generic [ref=e338]:
+                - heading "Jane Smith" [level=1] [ref=e339]
+                - generic [ref=e340]:
+                  - generic [ref=e341]:
+                    - img [ref=e342]
+                    - text: Marketing Director
+                  - link "VML" [ref=e345] [cursor=pointer]:
+                    - /url: /organisations/5879df5e-21b5-4243-9439-14f0e592eb11
+                    - img [ref=e346]
+                    - text: VML
+                  - link "jane.smith@vml.com" [ref=e350] [cursor=pointer]:
+                    - /url: mailto:jane.smith@vml.com
+                    - img [ref=e351]
+                    - text: jane.smith@vml.com
+                - generic [ref=e354]:
+                  - img [ref=e355]
+                  - text: Last updated 02 May 2026
+            - generic [ref=e358]:
+              - heading "Intelligence notes(1)" [level=2] [ref=e359]:
+                - text: Intelligence notes
+                - generic [ref=e360]: (1)
+              - generic [ref=e362]:
+                - generic [ref=e363]:
+                  - generic [ref=e364]:
+                    - generic [ref=e365]: meeting
+                    - generic [ref=e366]:
+                      - img [ref=e367]
+                      - text: WPP SA
+                  - generic [ref=e370]: just now
+                - paragraph [ref=e371]: Met at SXSW Cape Town. Very interested in our new digital offering. Budget cycle starts Q3. Key decision maker for media spend.
+              - button "Add intelligence note" [ref=e372]:
+                - img [ref=e373]
+                - text: Add intelligence note
+          - generic [ref=e374]:
+            - generic [ref=e375]:
+              - heading "Agency relationships" [level=2] [ref=e376]
+              - generic [ref=e378]:
+                - generic [ref=e379]: Ogilvy
+                - generic [ref=e380]: Warm
+            - generic [ref=e382]:
+              - heading "Edit contact" [level=2] [ref=e383]
+              - generic [ref=e384]:
+                - generic [ref=e385]:
+                  - generic [ref=e386]:
+                    - generic [ref=e387]: First name
+                    - textbox [ref=e388]: Jane
+                  - generic [ref=e389]:
+                    - generic [ref=e390]: Last name
+                    - textbox [ref=e391]: Smith
+                - generic [ref=e392]:
+                  - generic [ref=e393]: Job title
+                  - textbox [ref=e394]: Marketing Director
+                - generic [ref=e395]:
+                  - generic [ref=e396]: Email
+                  - textbox [ref=e397]: jane.smith@vml.com
+                - generic [ref=e398]:
+                  - generic [ref=e399]: Relationship strength
+                  - combobox [ref=e400]:
+                    - option "Cold"
+                    - option "Warm" [selected]
+                    - option "Strong"
+                - button "Save changes" [ref=e401]

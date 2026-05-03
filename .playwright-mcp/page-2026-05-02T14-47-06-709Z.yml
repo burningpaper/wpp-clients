@@ -1,0 +1,81 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e20] [cursor=pointer]:
+    - img [ref=e21]
+  - alert [ref=e24]
+  - generic [ref=e25]:
+    - complementary [ref=e26]:
+      - generic [ref=e28]:
+        - generic [ref=e30]: W
+        - generic [ref=e31]: WPP Intelligence
+      - link "Search contacts…" [ref=e33] [cursor=pointer]:
+        - /url: /contacts
+        - img [ref=e34]
+        - generic [ref=e37]: Search contacts…
+      - navigation [ref=e38]:
+        - link "Contacts" [ref=e39] [cursor=pointer]:
+          - /url: /contacts
+          - img [ref=e40]
+          - text: Contacts
+        - link "Organisations" [ref=e45] [cursor=pointer]:
+          - /url: /organisations
+          - img [ref=e46]
+          - text: Organisations
+        - link "Import" [ref=e50] [cursor=pointer]:
+          - /url: /import
+          - img [ref=e51]
+          - text: Import
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - paragraph
+          - paragraph [ref=e56]: Ogilvy · account director
+        - button "Sign out" [ref=e58]:
+          - img [ref=e59]
+          - text: Sign out
+    - main [ref=e62]:
+      - generic [ref=e96]:
+        - generic [ref=e97]:
+          - heading "Add contact" [level=1] [ref=e98]
+          - paragraph [ref=e99]: Fill in the required fields. The rest can be added later.
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - generic [ref=e102]:
+              - generic [ref=e103]: First name *
+              - textbox [ref=e104]
+            - generic [ref=e105]:
+              - generic [ref=e106]: Last name *
+              - textbox [ref=e107]
+          - generic [ref=e108]:
+            - generic [ref=e109]: Organisation *
+            - combobox [ref=e110]:
+              - option "Select organisation…" [selected]
+              - option "VML"
+              - option "+ Add new organisation"
+          - generic [ref=e111]:
+            - generic [ref=e112]:
+              - generic [ref=e113]: Job title
+              - textbox [ref=e114]
+            - generic [ref=e115]:
+              - generic [ref=e116]: Email
+              - textbox [ref=e117]
+          - generic [ref=e118]:
+            - generic [ref=e119]:
+              - generic [ref=e120]: Agency *
+              - combobox [disabled] [ref=e121]:
+                - option "Ogilvy" [selected]
+                - option "GroupM"
+                - option "Grey"
+                - option "Wunderman Thompson"
+                - option "VMLY&R"
+                - option "Mindshare"
+                - option "MediaCom"
+            - generic [ref=e122]:
+              - generic [ref=e123]: Relationship strength *
+              - combobox [ref=e124]:
+                - option "Select…" [selected]
+                - option "Cold — known by name only"
+                - option "Warm — would take your call"
+                - option "Strong — active working relationship"
+          - generic [ref=e125]:
+            - button "Add contact" [ref=e126]
+            - link "Cancel" [ref=e127] [cursor=pointer]:
+              - /url: /contacts
