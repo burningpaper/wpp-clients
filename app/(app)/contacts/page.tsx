@@ -39,6 +39,7 @@ export default async function ContactsPage({
         ilike(contacts.firstName, `%${q}%`),
         ilike(contacts.lastName, `%${q}%`),
         ilike(contacts.title, `%${q}%`),
+        ilike(contacts.company, `%${q}%`),
         ilike(organisations.name, `%${q}%`)
       )
     );
@@ -58,6 +59,7 @@ export default async function ContactsPage({
       firstName: contacts.firstName,
       lastName: contacts.lastName,
       title: contacts.title,
+      company: contacts.company,
       lastUpdated: contacts.lastUpdated,
       orgId: contacts.orgId,
       orgName: organisations.name,
@@ -66,7 +68,7 @@ export default async function ContactsPage({
       relationshipStrength: contactAgencyRelationships.relationshipStrength,
     })
     .from(contacts)
-    .innerJoin(organisations, eq(contacts.orgId, organisations.id))
+    .leftJoin(organisations, eq(contacts.orgId, organisations.id))
     .leftJoin(
       contactAgencyRelationships,
       eq(contacts.id, contactAgencyRelationships.contactId)
@@ -128,7 +130,7 @@ export default async function ContactsPage({
                 </p>
                 <p className="text-gray-400 text-xs mt-0.5 truncate">
                   {row.title ? `${row.title} · ` : ""}
-                  {row.orgName}
+                  {row.orgName ?? row.company ?? ""}
                 </p>
               </div>
 

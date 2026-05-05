@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Building2, Upload, Search, LogOut, CalendarDays, Waves } from "lucide-react";
+import { Users, Building2, Upload, Search, LogOut, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const links = [
   { href: "/contacts", label: "Contacts", icon: Users },
   { href: "/organisations", label: "Organisations", icon: Building2 },
   { href: "/events", label: "Events", icon: CalendarDays },
-  { href: "/stream", label: "Stream", icon: Waves },
   { href: "/import", label: "Import", icon: Upload },
 ];
 

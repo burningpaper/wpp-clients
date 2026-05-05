@@ -44,22 +44,23 @@ export default async function EventDetailPage({ params }: Params) {
       lastName: contacts.lastName,
       title: contacts.title,
       email: contacts.email,
+      company: contacts.company,
       orgName: organisations.name,
     })
     .from(eventInvitees)
     .innerJoin(contacts, eq(eventInvitees.contactId, contacts.id))
-    .innerJoin(organisations, eq(contacts.orgId, organisations.id))
+    .leftJoin(organisations, eq(contacts.orgId, organisations.id))
     .where(eq(eventInvitees.eventId, id))
     .orderBy(contacts.lastName, contacts.firstName);
 
   const confirmedCount = invitees.filter(
-    (i) => i.rsvpStatus === "confirmed" || i.rsvpStatus === "attended"
+    (i) => i.rsvpStatus === "accepted" || i.rsvpStatus === "accepted_on_their_behalf"
   ).length;
   const pendingCount = invitees.filter(
     (i) => i.rsvpStatus === "pending"
   ).length;
   const declinedCount = invitees.filter(
-    (i) => i.rsvpStatus === "declined" || i.rsvpStatus === "no_show"
+    (i) => i.rsvpStatus === "declined" || i.rsvpStatus === "cancelled" || i.rsvpStatus === "no_show"
   ).length;
 
   return (

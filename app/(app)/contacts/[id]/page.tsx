@@ -35,11 +35,13 @@ export default async function ContactDetailPage({ params }: Params) {
 
   if (!contact) notFound();
 
-  const [org] = await db
-    .select()
-    .from(organisations)
-    .where(eq(organisations.id, contact.orgId))
-    .limit(1);
+  const [org] = contact.orgId
+    ? await db
+        .select()
+        .from(organisations)
+        .where(eq(organisations.id, contact.orgId))
+        .limit(1)
+    : [null];
 
   const relationships = await db
     .select({
@@ -117,13 +119,20 @@ export default async function ContactDetailPage({ params }: Params) {
                       {contact.title}
                     </span>
                   )}
-                  <Link
-                    href={`/organisations/${org.id}`}
-                    className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-sm transition-colors"
-                  >
-                    <Building2 className="w-3.5 h-3.5" />
-                    {org.name}
-                  </Link>
+                  {org ? (
+                    <Link
+                      href={`/organisations/${org.id}`}
+                      className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-sm transition-colors"
+                    >
+                      <Building2 className="w-3.5 h-3.5" />
+                      {org.name}
+                    </Link>
+                  ) : contact.company ? (
+                    <span className="flex items-center gap-1 text-gray-400 text-sm">
+                      <Building2 className="w-3.5 h-3.5" />
+                      {contact.company}
+                    </span>
+                  ) : null}
                   {contact.email && (
                     <a
                       href={`mailto:${contact.email}`}

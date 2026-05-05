@@ -52,6 +52,7 @@ export async function GET(req: Request) {
         ilike(contacts.firstName, `%${q}%`),
         ilike(contacts.lastName, `%${q}%`),
         ilike(contacts.title, `%${q}%`),
+        ilike(contacts.company, `%${q}%`),
         ilike(organisations.name, `%${q}%`)
       )
     );
@@ -76,6 +77,7 @@ export async function GET(req: Request) {
       lastName: contacts.lastName,
       title: contacts.title,
       email: contacts.email,
+      company: contacts.company,
       lastUpdated: contacts.lastUpdated,
       orgName: organisations.name,
       orgId: contacts.orgId,
@@ -84,7 +86,7 @@ export async function GET(req: Request) {
       relationshipStrength: contactAgencyRelationships.relationshipStrength,
     })
     .from(contacts)
-    .innerJoin(organisations, eq(contacts.orgId, organisations.id))
+    .leftJoin(organisations, eq(contacts.orgId, organisations.id))
     .leftJoin(
       contactAgencyRelationships,
       eq(contacts.id, contactAgencyRelationships.contactId)
@@ -122,7 +124,7 @@ export async function GET(req: Request) {
 const createSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
-  orgId: z.string().uuid(),
+  orgId: z.string().uuid().optional().nullable(),
   title: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
   agencyId: z.string().uuid(),

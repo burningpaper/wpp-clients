@@ -41,7 +41,7 @@ export const noteTypeEnum = pgEnum("note_type", [
 export const visibilityEnum = pgEnum("visibility", ["wpp_sa", "agency_only"]);
 
 // ---------------------------------------------------------------------------
-// Enums — Stream event
+// Enums — event invites / contacts (unified)
 // ---------------------------------------------------------------------------
 
 export const contactCategoryEnum = pgEnum("contact_category", [
@@ -91,22 +91,6 @@ export const rsvpStatusEnum = pgEnum("rsvp_status", [
 
 export const priorityFlagEnum = pgEnum("priority_flag", ["yes", "other"]);
 
-// Generic event management enums
-export const eventInviteStatusEnum = pgEnum("event_invite_status", [
-  "not_invited",
-  "invited",
-  "waitlisted",
-  "declined",
-]);
-
-export const eventRsvpStatusEnum = pgEnum("event_rsvp_status", [
-  "pending",
-  "confirmed",
-  "declined",
-  "attended",
-  "no_show",
-]);
-
 // ---------------------------------------------------------------------------
 // Custom column types
 // ---------------------------------------------------------------------------
@@ -124,7 +108,7 @@ const citext = customType<{ data: string }>({
 });
 
 // ---------------------------------------------------------------------------
-// Tables — existing
+// Tables — core
 // ---------------------------------------------------------------------------
 
 export const agencies = pgTable("agencies", {
@@ -165,16 +149,29 @@ export const contacts = pgTable("contacts", {
   id: uuid("id").primaryKey().defaultRandom(),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
-  orgId: uuid("org_id")
-    .notNull()
-    .references(() => organisations.id),
+  // Nullable — stream-origin contacts have no assigned org
+  orgId: uuid("org_id").references(() => organisations.id),
   title: text("title"),
   email: text("email"),
+  // Stream / enriched fields
+  company: text("company"),
+  category: contactCategoryEnum("category"),
+  city: text("city"),
+  country: text("country"),
+  gender: genderEnum("gender"),
+  race: raceEnum("race"),
+  assistantEmail: citext("assistant_email"),
+  mobileNumber: text("mobile_number"),
+  linkedinUrl: text("linkedin_url"),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
   // Kept current by a DB trigger on any write to contacts or contact_agency_relationships
   lastUpdated: timestamp("last_updated", { withTimezone: true })
     .notNull()
     .defaultNow(),
   createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });
@@ -268,113 +265,7 @@ export const orgTags = pgTable(
 );
 
 // ---------------------------------------------------------------------------
-// Tables — Stream event
-// ---------------------------------------------------------------------------
-
-export const streamContacts = pgTable(
-  "stream_contacts",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    category: contactCategoryEnum("category"),
-    company: text("company"),
-    position: text("position"),
-    firstName: text("first_name").notNull(),
-    lastName: text("last_name").notNull(),
-    city: text("city"),
-    country: text("country"),
-    gender: genderEnum("gender"),
-    race: raceEnum("race"),
-    // Uniqueness enforced by partial index in migration (email IS NOT NULL AND deleted_at IS NULL)
-    email: citext("email"),
-    assistantEmail: citext("assistant_email"),
-    mobileNumber: text("mobile_number"),
-    linkedinUrl: text("linkedin_url"),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    deletedAt: timestamp("deleted_at", { withTimezone: true }),
-  },
-  (t) => [
-    index("stream_contacts_category_idx").on(t.category),
-    index("stream_contacts_name_idx").on(t.lastName, t.firstName),
-  ]
-);
-
-export const eventYears = pgTable("event_years", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  year: integer("year").notNull().unique(),
-  // Partial unique index (only one row with is_current=true) is enforced in migration SQL
-  isCurrent: boolean("is_current").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
-
-export const eventYearParticipations = pgTable(
-  "event_year_participations",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    contactId: uuid("contact_id")
-      .notNull()
-      .references(() => streamContacts.id, { onDelete: "cascade" }),
-    eventYearId: uuid("event_year_id")
-      .notNull()
-      .references(() => eventYears.id, { onDelete: "restrict" }),
-    nominated: boolean("nominated").notNull().default(false),
-    priority: priorityFlagEnum("priority"),
-    nominatingAgencyId: uuid("nominating_agency_id").references(
-      () => agencies.id
-    ),
-    nominator: text("nominator"),
-    inviteStatus: inviteStatusEnum("invite_status"),
-    rsvpStatus: rsvpStatusEnum("rsvp_status"),
-    comments: text("comments"),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-  },
-  (t) => [
-    uniqueIndex("participation_unique_per_year").on(
-      t.contactId,
-      t.eventYearId
-    ),
-    index("participations_year_idx").on(t.eventYearId),
-    index("participations_contact_idx").on(t.contactId),
-    index("participations_invite_status_idx").on(
-      t.eventYearId,
-      t.inviteStatus
-    ),
-    index("participations_rsvp_status_idx").on(t.eventYearId, t.rsvpStatus),
-  ]
-);
-
-export const participationAgencies = pgTable(
-  "participation_agencies",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    participationId: uuid("participation_id")
-      .notNull()
-      .references(() => eventYearParticipations.id, { onDelete: "cascade" }),
-    agencyName: text("agency_name").notNull(),
-    isPrimary: boolean("is_primary").notNull().default(true),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-  },
-  (t) => [index("participation_agencies_participation_idx").on(t.participationId)]
-);
-
-// ---------------------------------------------------------------------------
-// Tables — generic events
+// Tables — events (unified, used for all event types including WPP Stream)
 // ---------------------------------------------------------------------------
 
 export const events = pgTable(
@@ -387,6 +278,8 @@ export const events = pgTable(
     eventDate: date("event_date"),
     capacity: integer("capacity"),
     isActive: boolean("is_active").notNull().default(true),
+    // Partial unique index (only one row with is_current=true) is enforced in migration SQL
+    isCurrent: boolean("is_current").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -407,10 +300,14 @@ export const eventInvitees = pgTable(
     contactId: uuid("contact_id")
       .notNull()
       .references(() => contacts.id, { onDelete: "cascade" }),
-    inviteStatus: eventInviteStatusEnum("invite_status")
-      .notNull()
-      .default("not_invited"),
-    rsvpStatus: eventRsvpStatusEnum("rsvp_status").notNull().default("pending"),
+    inviteStatus: inviteStatusEnum("invite_status"),
+    rsvpStatus: rsvpStatusEnum("rsvp_status"),
+    nominated: boolean("nominated").notNull().default(false),
+    priority: priorityFlagEnum("priority"),
+    nominatingAgencyId: uuid("nominating_agency_id").references(
+      () => agencies.id
+    ),
+    nominator: text("nominator"),
     notes: text("notes"),
     invitedAt: timestamp("invited_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -424,7 +321,25 @@ export const eventInvitees = pgTable(
     uniqueIndex("event_invitees_unique").on(t.eventId, t.contactId),
     index("event_invitees_event_idx").on(t.eventId),
     index("event_invitees_contact_idx").on(t.contactId),
+    index("event_invitees_invite_status_idx").on(t.eventId, t.inviteStatus),
+    index("event_invitees_rsvp_status_idx").on(t.eventId, t.rsvpStatus),
   ]
+);
+
+export const participationAgencies = pgTable(
+  "participation_agencies",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    participationId: uuid("participation_id")
+      .notNull()
+      .references(() => eventInvitees.id, { onDelete: "cascade" }),
+    agencyName: text("agency_name").notNull(),
+    isPrimary: boolean("is_primary").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("participation_agencies_participation_idx").on(t.participationId)]
 );
 
 // ---------------------------------------------------------------------------
@@ -439,10 +354,6 @@ export type ContactAgencyRelationship =
   typeof contactAgencyRelationships.$inferSelect;
 export type IntelligenceNote = typeof intelligenceNotes.$inferSelect;
 export type Tag = typeof tags.$inferSelect;
-export type StreamContact = typeof streamContacts.$inferSelect;
-export type EventYear = typeof eventYears.$inferSelect;
-export type EventYearParticipation =
-  typeof eventYearParticipations.$inferSelect;
 export type ParticipationAgency = typeof participationAgencies.$inferSelect;
 export type Event = typeof events.$inferSelect;
 export type EventInvitee = typeof eventInvitees.$inferSelect;

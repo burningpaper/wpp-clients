@@ -38,7 +38,7 @@ export async function GET(req: Request) {
         relationshipStrength: contactAgencyRelationships.relationshipStrength,
       })
       .from(contacts)
-      .innerJoin(organisations, eq(contacts.orgId, organisations.id))
+      .leftJoin(organisations, eq(contacts.orgId, organisations.id))
       .leftJoin(
         contactAgencyRelationships,
         eq(contacts.id, contactAgencyRelationships.contactId)
@@ -49,6 +49,7 @@ export async function GET(req: Request) {
           ilike(contacts.firstName, `%${q}%`),
           ilike(contacts.lastName, `%${q}%`),
           ilike(contacts.title, `%${q}%`),
+          ilike(contacts.company, `%${q}%`),
           ilike(organisations.name, `%${q}%`)
         )
       )

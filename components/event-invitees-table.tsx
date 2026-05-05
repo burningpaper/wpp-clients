@@ -11,39 +11,49 @@ import {
 
 type Invitee = {
   id: string;
-  inviteStatus: string;
-  rsvpStatus: string;
+  inviteStatus: string | null;
+  rsvpStatus: string | null;
   notes: string | null;
   contactId: string;
   firstName: string;
   lastName: string;
   title: string | null;
   email: string | null;
-  orgName: string;
+  company: string | null;
+  orgName: string | null;
 };
 
 const INVITE_LABELS: Record<string, string> = {
-  not_invited: "Not invited",
-  invited: "Invited",
-  waitlisted: "Waitlisted",
-  declined: "Declined",
+  first_round_invite: "1st Round",
+  second_round_invite: "2nd Round",
+  third_round_invite: "3rd Round",
+  agency_invite: "Agency",
+  rising_star_invite: "Rising Star",
+  waiting_list: "Waitlist",
+  other_invite: "Other",
+  no: "Not Invited",
 };
 
 const RSVP_LABELS: Record<string, string> = {
+  accepted: "Accepted",
+  accepted_on_their_behalf: "Accepted (proxy)",
   pending: "Pending",
-  confirmed: "Confirmed",
   declined: "Declined",
-  attended: "Attended",
-  no_show: "No show",
+  cancelled: "Cancelled",
+  bounced: "Bounced",
+  no_show: "No Show",
+  error: "Error",
 };
 
-// Colour hint for RSVP status
 const RSVP_COLOUR: Record<string, string> = {
+  accepted: "text-green-400",
+  accepted_on_their_behalf: "text-green-400",
   pending: "text-yellow-400/80",
-  confirmed: "text-green-400",
-  attended: "text-green-400",
   declined: "text-red-400/80",
+  cancelled: "text-red-400/80",
   no_show: "text-red-400/80",
+  bounced: "text-gray-500",
+  error: "text-orange-400/80",
 };
 
 export function EventInviteesTable({
@@ -112,19 +122,20 @@ export function EventInviteesTable({
                     </p>
                     <p className="text-gray-500 text-xs mt-0.5 truncate">
                       {inv.title ? `${inv.title} · ` : ""}
-                      {inv.orgName}
+                      {inv.orgName ?? inv.company ?? ""}
                     </p>
                   </Link>
                 </td>
 
                 <td className="px-4 py-3">
                   <select
-                    value={inv.inviteStatus}
+                    value={inv.inviteStatus ?? ""}
                     onChange={(e) =>
                       handleStatus(inv.id, "invite_status", e.target.value)
                     }
                     className="bg-gray-700/80 border border-gray-600 text-gray-200 text-xs rounded-md px-2 py-1.5 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
                   >
+                    <option value="">—</option>
                     {Object.entries(INVITE_LABELS).map(([val, label]) => (
                       <option key={val} value={val}>
                         {label}
@@ -135,12 +146,13 @@ export function EventInviteesTable({
 
                 <td className="px-4 py-3">
                   <select
-                    value={inv.rsvpStatus}
+                    value={inv.rsvpStatus ?? ""}
                     onChange={(e) =>
                       handleStatus(inv.id, "rsvp_status", e.target.value)
                     }
-                    className={`bg-gray-700/80 border border-gray-600 text-xs rounded-md px-2 py-1.5 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer ${RSVP_COLOUR[inv.rsvpStatus] ?? "text-gray-200"}`}
+                    className={`bg-gray-700/80 border border-gray-600 text-xs rounded-md px-2 py-1.5 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer ${RSVP_COLOUR[inv.rsvpStatus ?? ""] ?? "text-gray-200"}`}
                   >
+                    <option value="" className="text-gray-200">—</option>
                     {Object.entries(RSVP_LABELS).map(([val, label]) => (
                       <option key={val} value={val} className="text-gray-200">
                         {label}

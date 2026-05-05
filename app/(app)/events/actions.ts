@@ -62,10 +62,14 @@ export async function updateInviteeStatus(
       .update(eventInvitees)
       .set({
         inviteStatus: value as
-          | "not_invited"
-          | "invited"
-          | "waitlisted"
-          | "declined",
+          | "first_round_invite"
+          | "second_round_invite"
+          | "third_round_invite"
+          | "agency_invite"
+          | "rising_star_invite"
+          | "waiting_list"
+          | "other_invite"
+          | "no",
       })
       .where(eq(eventInvitees.id, inviteeId));
   } else {
@@ -74,10 +78,13 @@ export async function updateInviteeStatus(
       .set({
         rsvpStatus: value as
           | "pending"
-          | "confirmed"
+          | "bounced"
+          | "error"
+          | "accepted"
           | "declined"
-          | "attended"
-          | "no_show",
+          | "cancelled"
+          | "no_show"
+          | "accepted_on_their_behalf",
       })
       .where(eq(eventInvitees.id, inviteeId));
   }

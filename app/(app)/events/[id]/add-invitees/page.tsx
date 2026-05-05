@@ -1,7 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/db";
 import { events, eventInvitees, contacts, organisations } from "@/db/schema";
-import { eq, ilike, or, and } from "drizzle-orm";
+import { eq, ilike, or, and, isNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, UserPlus, Check } from "lucide-react";
@@ -36,17 +36,18 @@ export default async function AddInviteesPage({ params, searchParams }: Params) 
 
   // Search contacts
   const trimmedQ = q.trim();
-  const conditions =
-    trimmedQ.length >= 2
-      ? [
-          or(
-            ilike(contacts.firstName, `%${trimmedQ}%`),
-            ilike(contacts.lastName, `%${trimmedQ}%`),
-            ilike(contacts.title, `%${trimmedQ}%`),
-            ilike(organisations.name, `%${trimmedQ}%`)
-          ),
-        ]
-      : [];
+  const conditions: ReturnType<typeof or>[] = [isNull(contacts.deletedAt) as any];
+  if (trimmedQ.length >= 2) {
+    conditions.push(
+      or(
+        ilike(contacts.firstName, `%${trimmedQ}%`),
+        ilike(contacts.lastName, `%${trimmedQ}%`),
+        ilike(contacts.title, `%${trimmedQ}%`),
+        ilike(contacts.company, `%${trimmedQ}%`),
+        ilike(organisations.name, `%${trimmedQ}%`)
+      )!
+    );
+  }
 
   const rows = await db
     .select({
@@ -55,11 +56,12 @@ export default async function AddInviteesPage({ params, searchParams }: Params) 
       lastName: contacts.lastName,
       title: contacts.title,
       email: contacts.email,
+      company: contacts.company,
       orgName: organisations.name,
     })
     .from(contacts)
-    .innerJoin(organisations, eq(contacts.orgId, organisations.id))
-    .where(conditions.length ? and(...conditions) : undefined)
+    .leftJoin(organisations, eq(contacts.orgId, organisations.id))
+    .where(and(...conditions))
     .limit(40);
 
   // Inline server action — captures `id` (event id) from outer scope
@@ -121,7 +123,7 @@ export default async function AddInviteesPage({ params, searchParams }: Params) 
                   </p>
                   <p className="text-gray-400 text-xs mt-0.5 truncate">
                     {row.title ? `${row.title} · ` : ""}
-                    {row.orgName}
+                    {row.orgName ?? row.company ?? ""}
                   </p>
                 </div>
 

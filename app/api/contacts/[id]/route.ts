@@ -34,11 +34,13 @@ export async function GET(_req: Request, { params }: Params) {
   if (!contact)
     return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const [org] = await db
-    .select()
-    .from(organisations)
-    .where(eq(organisations.id, contact.orgId))
-    .limit(1);
+  const [org] = contact.orgId
+    ? await db
+        .select()
+        .from(organisations)
+        .where(eq(organisations.id, contact.orgId))
+        .limit(1)
+    : [undefined];
 
   const relationships = await db
     .select({
