@@ -43,3 +43,6 @@ next-env.d.ts
 # qa / browser testing artefacts
 .playwright-mcp/
 *.png
+
+# seed data — contains PII (real contact names + emails), keep off-repo
+/db/seed-data/

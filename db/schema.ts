@@ -275,7 +275,7 @@ export const streamContacts = pgTable(
   "stream_contacts",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    category: contactCategoryEnum("category").notNull(),
+    category: contactCategoryEnum("category"),
     company: text("company"),
     position: text("position"),
     firstName: text("first_name").notNull(),
@@ -357,6 +357,22 @@ export const eventYearParticipations = pgTable(
   ]
 );
 
+export const participationAgencies = pgTable(
+  "participation_agencies",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    participationId: uuid("participation_id")
+      .notNull()
+      .references(() => eventYearParticipations.id, { onDelete: "cascade" }),
+    agencyName: text("agency_name").notNull(),
+    isPrimary: boolean("is_primary").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("participation_agencies_participation_idx").on(t.participationId)]
+);
+
 // ---------------------------------------------------------------------------
 // Tables — generic events
 // ---------------------------------------------------------------------------
@@ -427,5 +443,6 @@ export type StreamContact = typeof streamContacts.$inferSelect;
 export type EventYear = typeof eventYears.$inferSelect;
 export type EventYearParticipation =
   typeof eventYearParticipations.$inferSelect;
+export type ParticipationAgency = typeof participationAgencies.$inferSelect;
 export type Event = typeof events.$inferSelect;
 export type EventInvitee = typeof eventInvitees.$inferSelect;
