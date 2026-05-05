@@ -5,6 +5,7 @@ import {
   text,
   boolean,
   integer,
+  date,
   timestamp,
   primaryKey,
   index,
@@ -89,6 +90,22 @@ export const rsvpStatusEnum = pgEnum("rsvp_status", [
 ]);
 
 export const priorityFlagEnum = pgEnum("priority_flag", ["yes", "other"]);
+
+// Generic event management enums
+export const eventInviteStatusEnum = pgEnum("event_invite_status", [
+  "not_invited",
+  "invited",
+  "waitlisted",
+  "declined",
+]);
+
+export const eventRsvpStatusEnum = pgEnum("event_rsvp_status", [
+  "pending",
+  "confirmed",
+  "declined",
+  "attended",
+  "no_show",
+]);
 
 // ---------------------------------------------------------------------------
 // Custom column types
@@ -341,6 +358,60 @@ export const eventYearParticipations = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// Tables — generic events
+// ---------------------------------------------------------------------------
+
+export const events = pgTable(
+  "events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    description: text("description"),
+    venue: text("venue"),
+    eventDate: date("event_date"),
+    capacity: integer("capacity"),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("events_date_idx").on(t.eventDate)]
+);
+
+export const eventInvitees = pgTable(
+  "event_invitees",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    eventId: uuid("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    contactId: uuid("contact_id")
+      .notNull()
+      .references(() => contacts.id, { onDelete: "cascade" }),
+    inviteStatus: eventInviteStatusEnum("invite_status")
+      .notNull()
+      .default("not_invited"),
+    rsvpStatus: eventRsvpStatusEnum("rsvp_status").notNull().default("pending"),
+    notes: text("notes"),
+    invitedAt: timestamp("invited_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("event_invitees_unique").on(t.eventId, t.contactId),
+    index("event_invitees_event_idx").on(t.eventId),
+    index("event_invitees_contact_idx").on(t.contactId),
+  ]
+);
+
+// ---------------------------------------------------------------------------
 // Type exports
 // ---------------------------------------------------------------------------
 
@@ -356,3 +427,5 @@ export type StreamContact = typeof streamContacts.$inferSelect;
 export type EventYear = typeof eventYears.$inferSelect;
 export type EventYearParticipation =
   typeof eventYearParticipations.$inferSelect;
+export type Event = typeof events.$inferSelect;
+export type EventInvitee = typeof eventInvitees.$inferSelect;
