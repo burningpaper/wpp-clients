@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { X } from "lucide-react";
@@ -56,6 +56,22 @@ const RSVP_COLOUR: Record<string, string> = {
   error: "text-orange-400/80",
 };
 
+type SortKey = "firstName" | "lastName" | "inviteStatus" | "rsvpStatus";
+
+const SORT_LABELS: Record<SortKey, string> = {
+  firstName: "First name",
+  lastName: "Surname",
+  inviteStatus: "Invite status",
+  rsvpStatus: "RSVP",
+};
+
+function sortValue(inv: Invitee, key: SortKey): string {
+  if (key === "inviteStatus") return inv.inviteStatus ?? "zzz";
+  if (key === "rsvpStatus") return inv.rsvpStatus ?? "zzz";
+  if (key === "lastName") return inv.lastName.toLowerCase();
+  return inv.firstName.toLowerCase();
+}
+
 export function EventInviteesTable({
   invitees,
   eventId,
@@ -65,6 +81,12 @@ export function EventInviteesTable({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [sortBy, setSortBy] = useState<SortKey>("firstName");
+
+  const sorted = useMemo(
+    () => [...invitees].sort((a, b) => sortValue(a, sortBy).localeCompare(sortValue(b, sortBy))),
+    [invitees, sortBy]
+  );
 
   function handleStatus(
     inviteeId: string,
@@ -86,12 +108,26 @@ export function EventInviteesTable({
 
   return (
     <div className={isPending ? "opacity-60 pointer-events-none" : ""}>
-      <h2 className="text-white font-medium text-base mb-3">
-        Invitees
-        <span className="text-gray-500 font-normal text-sm ml-2">
-          ({invitees.length})
-        </span>
-      </h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-white font-medium text-base">
+          Invitees
+          <span className="text-gray-500 font-normal text-sm ml-2">
+            ({invitees.length})
+          </span>
+        </h2>
+        <div className="flex items-center gap-2">
+          <span className="text-gray-500 text-xs">Sort by</span>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortKey)}
+            className="bg-gray-800 border border-gray-700 text-gray-300 text-xs rounded-md px-2.5 py-1.5 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+          >
+            {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
+              <option key={key} value={key}>{SORT_LABELS[key]}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
         <table className="w-full table-fixed">
@@ -110,7 +146,7 @@ export function EventInviteesTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-700/40">
-            {invitees.map((inv) => (
+            {sorted.map((inv) => (
               <tr key={inv.id} className="group hover:bg-white/[0.02] transition-colors">
                 <td className="px-4 py-3 min-w-0">
                   <Link

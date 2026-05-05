@@ -51,7 +51,7 @@ export default async function EventDetailPage({ params }: Params) {
     .innerJoin(contacts, eq(eventInvitees.contactId, contacts.id))
     .leftJoin(organisations, eq(contacts.orgId, organisations.id))
     .where(eq(eventInvitees.eventId, id))
-    .orderBy(contacts.lastName, contacts.firstName);
+    .orderBy(contacts.firstName, contacts.lastName);
 
   const confirmedCount = invitees.filter(
     (i) => i.rsvpStatus === "accepted" || i.rsvpStatus === "accepted_on_their_behalf"
