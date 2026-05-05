@@ -94,16 +94,16 @@ export function EventInviteesTable({
       </h2>
 
       <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
-        <table className="w-full">
+        <table className="w-full table-fixed">
           <thead>
             <tr className="border-b border-gray-700/80">
-              <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-1/2">
+              <th className="text-left text-xs font-medium text-gray-500 px-4 py-3">
                 Contact
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 px-4 py-3">
+              <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-44">
                 Invite status
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 px-4 py-3">
+              <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-44">
                 RSVP
               </th>
               <th className="w-10 px-4 py-3" />
@@ -112,12 +112,12 @@ export function EventInviteesTable({
           <tbody className="divide-y divide-gray-700/40">
             {invitees.map((inv) => (
               <tr key={inv.id} className="group hover:bg-white/[0.02] transition-colors">
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 min-w-0">
                   <Link
                     href={`/contacts/${inv.contactId}`}
-                    className="group/link"
+                    className="group/link block min-w-0"
                   >
-                    <p className="text-white text-sm font-medium group-hover/link:text-blue-400 transition-colors">
+                    <p className="text-white text-sm font-medium group-hover/link:text-blue-400 transition-colors truncate">
                       {inv.firstName} {inv.lastName}
                     </p>
                     <p className="text-gray-500 text-xs mt-0.5 truncate">
