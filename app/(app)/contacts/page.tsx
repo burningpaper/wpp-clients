@@ -6,13 +6,15 @@ import {
   contactAgencyRelationships,
   agencies,
 } from "@/db/schema";
-import { eq, ilike, or, and } from "drizzle-orm";
+import { eq, ilike, or, and, sql } from "drizzle-orm";
 import Link from "next/link";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import { StrengthBadge } from "@/components/strength-badge";
 import { ContactsFilter } from "@/components/contacts-filter";
 
 export const dynamic = "force-dynamic";
+
+const PAGE_SIZE = 200;
 
 type SearchParams = {
   q?: string;
@@ -53,31 +55,49 @@ export default async function ContactsPage({
     );
   }
 
-  const rows = await db
-    .selectDistinctOn([contacts.id], {
-      id: contacts.id,
-      firstName: contacts.firstName,
-      lastName: contacts.lastName,
-      title: contacts.title,
-      company: contacts.company,
-      lastUpdated: contacts.lastUpdated,
-      orgId: contacts.orgId,
-      orgName: organisations.name,
-      agencyId: contactAgencyRelationships.agencyId,
-      agencyName: agencies.name,
-      relationshipStrength: contactAgencyRelationships.relationshipStrength,
-    })
-    .from(contacts)
-    .leftJoin(organisations, eq(contacts.orgId, organisations.id))
-    .leftJoin(
-      contactAgencyRelationships,
-      eq(contacts.id, contactAgencyRelationships.contactId)
-    )
-    .leftJoin(agencies, eq(contactAgencyRelationships.agencyId, agencies.id))
-    .where(conditions.length ? and(...conditions) : undefined)
-    .limit(50);
+  const where = conditions.length ? and(...conditions) : undefined;
 
-  const allAgencies = await db.select().from(agencies);
+  const [rows, [{ total }], allAgencies] = await Promise.all([
+    db
+      .selectDistinctOn([contacts.id], {
+        id: contacts.id,
+        firstName: contacts.firstName,
+        lastName: contacts.lastName,
+        title: contacts.title,
+        company: contacts.company,
+        lastUpdated: contacts.lastUpdated,
+        orgId: contacts.orgId,
+        orgName: organisations.name,
+        agencyId: contactAgencyRelationships.agencyId,
+        agencyName: agencies.name,
+        relationshipStrength: contactAgencyRelationships.relationshipStrength,
+      })
+      .from(contacts)
+      .leftJoin(organisations, eq(contacts.orgId, organisations.id))
+      .leftJoin(
+        contactAgencyRelationships,
+        eq(contacts.id, contactAgencyRelationships.contactId)
+      )
+      .leftJoin(agencies, eq(contactAgencyRelationships.agencyId, agencies.id))
+      .where(where)
+      .orderBy(contacts.firstName, contacts.lastName)
+      .limit(PAGE_SIZE),
+
+    db
+      .select({ total: sql<number>`COUNT(DISTINCT ${contacts.id})::int` })
+      .from(contacts)
+      .leftJoin(organisations, eq(contacts.orgId, organisations.id))
+      .leftJoin(
+        contactAgencyRelationships,
+        eq(contacts.id, contactAgencyRelationships.contactId)
+      )
+      .leftJoin(agencies, eq(contactAgencyRelationships.agencyId, agencies.id))
+      .where(where),
+
+    db.select().from(agencies),
+  ]);
+
+  const isCapped = rows.length < total;
 
   return (
     <div>
@@ -85,7 +105,9 @@ export default async function ContactsPage({
         <div>
           <h1 className="text-white text-2xl font-semibold">Contacts</h1>
           <p className="text-gray-400 text-sm mt-0.5">
-            {rows.length} contact{rows.length !== 1 ? "s" : ""}
+            {isCapped
+              ? `Showing ${rows.length} of ${total} contacts`
+              : `${total} contact${total !== 1 ? "s" : ""}`}
             {q ? ` matching "${q}"` : ""}
           </p>
         </div>
@@ -100,6 +122,13 @@ export default async function ContactsPage({
 
       {/* Search + filters */}
       <ContactsFilter agencies={allAgencies} />
+
+      {/* Cap notice */}
+      {isCapped && !q && (
+        <p className="mt-3 text-xs text-gray-500">
+          Showing the first {PAGE_SIZE} contacts — use the search box to find anyone specific.
+        </p>
+      )}
 
       {/* Contact list */}
       <div className="mt-4 space-y-1">
@@ -138,9 +167,7 @@ export default async function ContactsPage({
                 {row.agencyName && (
                   <span className="text-gray-500 text-xs">{row.agencyName}</span>
                 )}
-                <StrengthBadge
-                  strength={row.relationshipStrength}
-                />
+                <StrengthBadge strength={row.relationshipStrength} />
                 <span className="text-gray-600 text-xs">
                   {timeAgo(row.lastUpdated)}
                 </span>
