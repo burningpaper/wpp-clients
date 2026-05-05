@@ -16,19 +16,26 @@ async function migrate() {
     )
   `);
 
-  // Bootstrap: if the agencies table already exists but the ledger is empty,
-  // the initial migration was applied before this ledger existed — mark it done
-  const [{ exists: agenciesExists }] = await client<[{ exists: boolean }]>`
-    SELECT EXISTS (
-      SELECT 1 FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = 'agencies'
-    ) AS exists
-  `;
-  if (agenciesExists) {
-    await client`
-      INSERT INTO _migrations (filename) VALUES ('0001_initial.sql')
-      ON CONFLICT DO NOTHING
+  // Bootstrap: for migrations applied manually before the ledger existed,
+  // check each migration's sentinel table and mark it applied if found.
+  const bootstrapChecks = [
+    { filename: "0001_initial.sql", table: "agencies" },
+    { filename: "0002_stream.sql", table: "stream_contacts" },
+    { filename: "0003_events.sql", table: "events" },
+  ];
+  for (const { filename, table } of bootstrapChecks) {
+    const [{ exists }] = await client<[{ exists: boolean }]>`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = ${table}
+      ) AS exists
     `;
+    if (exists) {
+      await client`
+        INSERT INTO _migrations (filename) VALUES (${filename})
+        ON CONFLICT DO NOTHING
+      `;
+    }
   }
 
   // Collect already-applied filenames
