@@ -80,7 +80,7 @@ export default async function ContactsPage({
       )
       .leftJoin(agencies, eq(contactAgencyRelationships.agencyId, agencies.id))
       .where(where)
-      .orderBy(contacts.firstName, contacts.lastName)
+      .orderBy(contacts.id)
       .limit(PAGE_SIZE),
 
     db
@@ -96,6 +96,10 @@ export default async function ContactsPage({
 
     db.select().from(agencies),
   ]);
+
+  rows.sort((a, b) =>
+    a.firstName.localeCompare(b.firstName) || a.lastName.localeCompare(b.lastName)
+  );
 
   const isCapped = rows.length < total;
 
