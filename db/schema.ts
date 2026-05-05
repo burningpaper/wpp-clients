@@ -4,6 +4,7 @@ import {
   uuid,
   text,
   boolean,
+  integer,
   timestamp,
   primaryKey,
   index,
@@ -13,7 +14,7 @@ import {
 import { sql } from "drizzle-orm";
 
 // ---------------------------------------------------------------------------
-// Enums
+// Enums — existing
 // ---------------------------------------------------------------------------
 
 export const roleEnum = pgEnum("role", [
@@ -39,7 +40,58 @@ export const noteTypeEnum = pgEnum("note_type", [
 export const visibilityEnum = pgEnum("visibility", ["wpp_sa", "agency_only"]);
 
 // ---------------------------------------------------------------------------
-// tsvector custom type (Drizzle doesn't ship one)
+// Enums — Stream event
+// ---------------------------------------------------------------------------
+
+export const contactCategoryEnum = pgEnum("contact_category", [
+  "client_sa",
+  "client_africa",
+  "client_global",
+  "industry_sa",
+  "industry_africa",
+  "industry_global",
+  "agency_sa",
+  "agency_africa",
+  "agency_global",
+  "rising_star",
+]);
+
+export const genderEnum = pgEnum("gender", ["male", "female", "unknown"]);
+
+export const raceEnum = pgEnum("race", [
+  "african",
+  "coloured",
+  "indian",
+  "white",
+  "other",
+]);
+
+export const inviteStatusEnum = pgEnum("invite_status", [
+  "first_round_invite",
+  "second_round_invite",
+  "third_round_invite",
+  "agency_invite",
+  "rising_star_invite",
+  "waiting_list",
+  "other_invite",
+  "no",
+]);
+
+export const rsvpStatusEnum = pgEnum("rsvp_status", [
+  "pending",
+  "bounced",
+  "error",
+  "accepted",
+  "declined",
+  "cancelled",
+  "no_show",
+  "accepted_on_their_behalf",
+]);
+
+export const priorityFlagEnum = pgEnum("priority_flag", ["yes", "other"]);
+
+// ---------------------------------------------------------------------------
+// Custom column types
 // ---------------------------------------------------------------------------
 
 const tsvector = customType<{ data: string }>({
@@ -48,16 +100,24 @@ const tsvector = customType<{ data: string }>({
   },
 });
 
+const citext = customType<{ data: string }>({
+  dataType() {
+    return "citext";
+  },
+});
+
 // ---------------------------------------------------------------------------
-// Tables
+// Tables — existing
 // ---------------------------------------------------------------------------
 
 export const agencies = pgTable("agencies", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
+  active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
 export const users = pgTable(
@@ -191,6 +251,96 @@ export const orgTags = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// Tables — Stream event
+// ---------------------------------------------------------------------------
+
+export const streamContacts = pgTable(
+  "stream_contacts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    category: contactCategoryEnum("category").notNull(),
+    company: text("company"),
+    position: text("position"),
+    firstName: text("first_name").notNull(),
+    lastName: text("last_name").notNull(),
+    city: text("city"),
+    country: text("country"),
+    gender: genderEnum("gender"),
+    race: raceEnum("race"),
+    // Uniqueness enforced by partial index in migration (email IS NOT NULL AND deleted_at IS NULL)
+    email: citext("email"),
+    assistantEmail: citext("assistant_email"),
+    mobileNumber: text("mobile_number"),
+    linkedinUrl: text("linkedin_url"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("stream_contacts_category_idx").on(t.category),
+    index("stream_contacts_name_idx").on(t.lastName, t.firstName),
+  ]
+);
+
+export const eventYears = pgTable("event_years", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  year: integer("year").notNull().unique(),
+  // Partial unique index (only one row with is_current=true) is enforced in migration SQL
+  isCurrent: boolean("is_current").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const eventYearParticipations = pgTable(
+  "event_year_participations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    contactId: uuid("contact_id")
+      .notNull()
+      .references(() => streamContacts.id, { onDelete: "cascade" }),
+    eventYearId: uuid("event_year_id")
+      .notNull()
+      .references(() => eventYears.id, { onDelete: "restrict" }),
+    nominated: boolean("nominated").notNull().default(false),
+    priority: priorityFlagEnum("priority"),
+    nominatingAgencyId: uuid("nominating_agency_id").references(
+      () => agencies.id
+    ),
+    nominator: text("nominator"),
+    inviteStatus: inviteStatusEnum("invite_status"),
+    rsvpStatus: rsvpStatusEnum("rsvp_status"),
+    comments: text("comments"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("participation_unique_per_year").on(
+      t.contactId,
+      t.eventYearId
+    ),
+    index("participations_year_idx").on(t.eventYearId),
+    index("participations_contact_idx").on(t.contactId),
+    index("participations_invite_status_idx").on(
+      t.eventYearId,
+      t.inviteStatus
+    ),
+    index("participations_rsvp_status_idx").on(t.eventYearId, t.rsvpStatus),
+  ]
+);
+
+// ---------------------------------------------------------------------------
 // Type exports
 // ---------------------------------------------------------------------------
 
@@ -202,3 +352,7 @@ export type ContactAgencyRelationship =
   typeof contactAgencyRelationships.$inferSelect;
 export type IntelligenceNote = typeof intelligenceNotes.$inferSelect;
 export type Tag = typeof tags.$inferSelect;
+export type StreamContact = typeof streamContacts.$inferSelect;
+export type EventYear = typeof eventYears.$inferSelect;
+export type EventYearParticipation =
+  typeof eventYearParticipations.$inferSelect;
