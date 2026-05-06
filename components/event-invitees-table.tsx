@@ -21,6 +21,7 @@ type Invitee = {
   email: string | null;
   company: string | null;
   orgName: string | null;
+  agencyNames: string[];
 };
 
 const INVITE_LABELS: Record<string, string> = {
@@ -142,6 +143,9 @@ export function EventInviteesTable({
               <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-44">
                 RSVP
               </th>
+              <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-48">
+                Inviting agencies
+              </th>
               <th className="w-10 px-4 py-3" />
             </tr>
           </thead>
@@ -195,6 +199,16 @@ export function EventInviteesTable({
                       </option>
                     ))}
                   </select>
+                </td>
+
+                <td className="px-4 py-3">
+                  {inv.agencyNames.length > 0 ? (
+                    <span className="text-gray-400 text-xs">
+                      {inv.agencyNames.join(", ")}
+                    </span>
+                  ) : (
+                    <span className="text-gray-600 text-xs">—</span>
+                  )}
                 </td>
 
                 <td className="px-4 py-3 text-right">

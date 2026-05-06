@@ -9,17 +9,67 @@ import {
   contactTags,
   tags,
   users,
+  eventInvitees,
+  events,
 } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Building2, Mail, Briefcase, Clock } from "lucide-react";
+import { ArrowLeft, Building2, Mail, Briefcase, Clock, CalendarDays } from "lucide-react";
 import { StrengthBadge } from "@/components/strength-badge";
 import { IntelligenceNotesList } from "@/components/intelligence-notes-list";
 import { AddNoteForm } from "@/components/add-note-form";
 import { EditContactForm } from "@/components/edit-contact-form";
 
 export const dynamic = "force-dynamic";
+
+const INVITE_LABELS: Record<string, string> = {
+  first_round_invite: "1st Round",
+  second_round_invite: "2nd Round",
+  third_round_invite: "3rd Round",
+  agency_invite: "Agency",
+  rising_star_invite: "Rising Star",
+  waiting_list: "Waitlist",
+  other_invite: "Other",
+  no: "Not Invited",
+};
+
+const RSVP_LABELS: Record<string, string> = {
+  accepted: "Accepted",
+  accepted_on_their_behalf: "Accepted (proxy)",
+  pending: "Pending",
+  declined: "Declined",
+  cancelled: "Cancelled",
+  bounced: "Bounced",
+  no_show: "No Show",
+  error: "Error",
+};
+
+function InviteStatusBadge({ status }: { status: string | null }) {
+  if (!status) return <span className="text-gray-600 text-xs">—</span>;
+  return (
+    <span className="text-gray-300 text-xs bg-gray-700 px-2 py-0.5 rounded-full">
+      {INVITE_LABELS[status] ?? status}
+    </span>
+  );
+}
+
+function RsvpStatusBadge({ status }: { status: string | null }) {
+  if (!status) return <span className="text-gray-600 text-xs">—</span>;
+  const colour =
+    status === "accepted" || status === "accepted_on_their_behalf"
+      ? "text-green-400 bg-green-400/10"
+      : status === "pending"
+      ? "text-yellow-400 bg-yellow-400/10"
+      : status === "declined" || status === "cancelled" || status === "no_show"
+      ? "text-red-400 bg-red-400/10"
+      : "text-gray-400 bg-gray-700";
+  return (
+    <span className={`text-xs px-2 py-0.5 rounded-full ${colour}`}>
+      {RSVP_LABELS[status] ?? status}
+    </span>
+  );
+}
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -74,6 +124,20 @@ export default async function ContactDetailPage({ params }: Params) {
     .where(eq(contactTags.contactId, id));
 
   const allAgencies = await db.select().from(agencies);
+
+  const eventParticipations = await db
+    .select({
+      inviteeId: eventInvitees.id,
+      inviteStatus: eventInvitees.inviteStatus,
+      rsvpStatus: eventInvitees.rsvpStatus,
+      eventId: events.id,
+      eventName: events.name,
+      isCurrent: events.isCurrent,
+    })
+    .from(eventInvitees)
+    .innerJoin(events, eq(eventInvitees.eventId, events.id))
+    .where(eq(eventInvitees.contactId, id))
+    .orderBy(desc(events.name));
 
   const canEdit =
     user.role === "ceo_md" ||
@@ -169,6 +233,57 @@ export default async function ContactDetailPage({ params }: Params) {
               </div>
             )}
           </div>
+
+          {/* Event participation */}
+          {eventParticipations.length > 0 && (
+            <div>
+              <h2 className="text-white font-medium text-base mb-3">
+                Event participation
+                <span className="text-gray-500 font-normal text-sm ml-2">
+                  ({eventParticipations.length})
+                </span>
+              </h2>
+              <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+                <table className="w-full table-fixed">
+                  <thead>
+                    <tr className="border-b border-gray-700/80">
+                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3">Event</th>
+                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-36">Invite</th>
+                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-36">RSVP</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-700/40">
+                    {eventParticipations.map((ep) => (
+                      <tr key={ep.inviteeId} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="px-4 py-3 min-w-0">
+                          <Link
+                            href={`/events/${ep.eventId}`}
+                            className="flex items-center gap-2 group/link min-w-0"
+                          >
+                            <CalendarDays className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                            <span className="text-white text-sm group-hover/link:text-blue-400 transition-colors truncate">
+                              {ep.eventName}
+                            </span>
+                            {ep.isCurrent && (
+                              <span className="text-xs text-blue-400 bg-blue-400/10 border border-blue-400/20 px-1.5 py-0.5 rounded-full shrink-0">
+                                Current
+                              </span>
+                            )}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-3">
+                          <InviteStatusBadge status={ep.inviteStatus} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <RsvpStatusBadge status={ep.rsvpStatus} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
           {/* Intelligence notes */}
           <div>

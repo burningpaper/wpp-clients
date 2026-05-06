@@ -1,7 +1,7 @@
 import { requireAuth } from "@/lib/auth";
 import { db } from "@/db";
-import { events, eventInvitees, contacts, organisations } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { events, eventInvitees, contacts, organisations, participationAgencies } from "@/db/schema";
+import { eq, inArray } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, MapPin, Users, Plus } from "lucide-react";
@@ -52,6 +52,29 @@ export default async function EventDetailPage({ params }: Params) {
     .leftJoin(organisations, eq(contacts.orgId, organisations.id))
     .where(eq(eventInvitees.eventId, id))
     .orderBy(contacts.firstName, contacts.lastName);
+
+  // Fetch agency links for all invitees in one query, then merge in memory
+  const agencyRows = invitees.length
+    ? await db
+        .select({
+          participationId: participationAgencies.participationId,
+          agencyName: participationAgencies.agencyName,
+        })
+        .from(participationAgencies)
+        .where(inArray(participationAgencies.participationId, invitees.map((i) => i.id)))
+    : [];
+
+  const agencyMap = new Map<string, string[]>();
+  for (const row of agencyRows) {
+    const list = agencyMap.get(row.participationId) ?? [];
+    list.push(row.agencyName);
+    agencyMap.set(row.participationId, list);
+  }
+
+  const inviteesWithAgencies = invitees.map((inv) => ({
+    ...inv,
+    agencyNames: agencyMap.get(inv.id) ?? [],
+  }));
 
   const confirmedCount = invitees.filter(
     (i) => i.rsvpStatus === "accepted" || i.rsvpStatus === "accepted_on_their_behalf"
@@ -177,7 +200,7 @@ export default async function EventDetailPage({ params }: Params) {
           </Link>
         </div>
       ) : (
-        <EventInviteesTable invitees={invitees} eventId={id} />
+        <EventInviteesTable invitees={inviteesWithAgencies} eventId={id} />
       )}
     </div>
   );
