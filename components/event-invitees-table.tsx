@@ -57,11 +57,12 @@ const RSVP_COLOUR: Record<string, string> = {
   error: "text-orange-400/80",
 };
 
-type SortKey = "firstName" | "lastName" | "inviteStatus" | "rsvpStatus";
+type SortKey = "firstName" | "lastName" | "company" | "inviteStatus" | "rsvpStatus";
 
 const SORT_LABELS: Record<SortKey, string> = {
   firstName: "First name",
   lastName: "Surname",
+  company: "Company",
   inviteStatus: "Invite status",
   rsvpStatus: "RSVP",
 };
@@ -70,6 +71,7 @@ function sortValue(inv: Invitee, key: SortKey): string {
   if (key === "inviteStatus") return inv.inviteStatus ?? "zzz";
   if (key === "rsvpStatus") return inv.rsvpStatus ?? "zzz";
   if (key === "lastName") return inv.lastName.toLowerCase();
+  if (key === "company") return (inv.orgName ?? inv.company ?? "zzz").toLowerCase();
   return inv.firstName.toLowerCase();
 }
 
@@ -160,9 +162,13 @@ export function EventInviteesTable({
                     <p className="text-white text-sm font-medium group-hover/link:text-blue-400 transition-colors truncate">
                       {inv.firstName} {inv.lastName}
                     </p>
-                    <p className="text-gray-500 text-xs mt-0.5 truncate">
-                      {inv.title ? `${inv.title} · ` : ""}
-                      {inv.orgName ?? inv.company ?? ""}
+                    <p className="text-xs mt-0.5 truncate">
+                      {inv.title && (
+                        <span className="text-gray-500">{inv.title} · </span>
+                      )}
+                      <span className="text-gray-300">
+                        {inv.orgName ?? inv.company ?? ""}
+                      </span>
                     </p>
                   </Link>
                 </td>
