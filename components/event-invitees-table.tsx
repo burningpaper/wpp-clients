@@ -85,10 +85,16 @@ export function EventInviteesTable({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [sortBy, setSortBy] = useState<SortKey>("firstName");
+  const [filterInvite, setFilterInvite] = useState<string>("all");
+
+  const filtered = useMemo(
+    () => filterInvite === "all" ? invitees : invitees.filter((i) => i.inviteStatus === filterInvite),
+    [invitees, filterInvite]
+  );
 
   const sorted = useMemo(
-    () => [...invitees].sort((a, b) => sortValue(a, sortBy).localeCompare(sortValue(b, sortBy))),
-    [invitees, sortBy]
+    () => [...filtered].sort((a, b) => sortValue(a, sortBy).localeCompare(sortValue(b, sortBy))),
+    [filtered, sortBy]
   );
 
   function handleStatus(
@@ -115,20 +121,35 @@ export function EventInviteesTable({
         <h2 className="text-white font-medium text-base">
           Invitees
           <span className="text-gray-500 font-normal text-sm ml-2">
-            ({invitees.length})
+            ({filterInvite === "all" ? invitees.length : `${sorted.length} of ${invitees.length}`})
           </span>
         </h2>
-        <div className="flex items-center gap-2">
-          <span className="text-gray-500 text-xs">Sort by</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortKey)}
-            className="bg-gray-800 border border-gray-700 text-gray-300 text-xs rounded-md px-2.5 py-1.5 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
-          >
-            {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
-              <option key={key} value={key}>{SORT_LABELS[key]}</option>
-            ))}
-          </select>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-500 text-xs">Invite status</span>
+            <select
+              value={filterInvite}
+              onChange={(e) => setFilterInvite(e.target.value)}
+              className="bg-gray-800 border border-gray-700 text-gray-300 text-xs rounded-md px-2.5 py-1.5 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+            >
+              <option value="all">All</option>
+              {Object.entries(INVITE_LABELS).map(([val, label]) => (
+                <option key={val} value={val}>{label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-gray-500 text-xs">Sort by</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortKey)}
+              className="bg-gray-800 border border-gray-700 text-gray-300 text-xs rounded-md px-2.5 py-1.5 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+            >
+              {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
+                <option key={key} value={key}>{SORT_LABELS[key]}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
