@@ -15,11 +15,11 @@ import {
 import { eq, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Building2, Mail, Briefcase, Clock, CalendarDays } from "lucide-react";
+import { ArrowLeft, CalendarDays } from "lucide-react";
 import { StrengthBadge } from "@/components/strength-badge";
 import { IntelligenceNotesList } from "@/components/intelligence-notes-list";
 import { AddNoteForm } from "@/components/add-note-form";
-import { EditContactForm } from "@/components/edit-contact-form";
+import { ContactHeader } from "@/components/contact-header";
 
 export const dynamic = "force-dynamic";
 
@@ -144,9 +144,6 @@ export default async function ContactDetailPage({ params }: Params) {
     user.role === "system_admin" ||
     relationships.some((r) => r.agencyId === user.agencyId);
 
-  const agencyNoteCreatorIds = [
-    ...new Set(allNotes.map((n) => n.createdByAgencyId)),
-  ];
   const noteAgencyMap = new Map(allAgencies.map((a) => [a.id, a.name]));
 
   return (
@@ -161,78 +158,14 @@ export default async function ContactDetailPage({ params }: Params) {
       </Link>
 
       <div className="grid grid-cols-3 gap-6">
-        {/* Left column: contact info */}
+        {/* Left column: contact header + event participation + notes */}
         <div className="col-span-2 space-y-5">
-          {/* Header card */}
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-xl bg-gray-700 flex items-center justify-center shrink-0">
-                <span className="text-white text-xl font-semibold">
-                  {contact.firstName[0]}
-                  {contact.lastName[0]}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-white text-xl font-semibold">
-                  {contact.firstName} {contact.lastName}
-                </h1>
-                <div className="flex items-center gap-3 mt-1 flex-wrap">
-                  {contact.title && (
-                    <span className="flex items-center gap-1 text-gray-400 text-sm">
-                      <Briefcase className="w-3.5 h-3.5" />
-                      {contact.title}
-                    </span>
-                  )}
-                  {org ? (
-                    <Link
-                      href={`/organisations/${org.id}`}
-                      className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-sm transition-colors"
-                    >
-                      <Building2 className="w-3.5 h-3.5" />
-                      {org.name}
-                    </Link>
-                  ) : contact.company ? (
-                    <span className="flex items-center gap-1 text-gray-400 text-sm">
-                      <Building2 className="w-3.5 h-3.5" />
-                      {contact.company}
-                    </span>
-                  ) : null}
-                  {contact.email && (
-                    <a
-                      href={`mailto:${contact.email}`}
-                      className="flex items-center gap-1 text-gray-400 hover:text-gray-300 text-sm transition-colors"
-                    >
-                      <Mail className="w-3.5 h-3.5" />
-                      {contact.email}
-                    </a>
-                  )}
-                </div>
-                <div className="flex items-center gap-1.5 mt-2 text-gray-500 text-xs">
-                  <Clock className="w-3 h-3" />
-                  Last updated{" "}
-                  {contact.lastUpdated.toLocaleDateString("en-ZA", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Tags */}
-            {contactTagRows.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t border-gray-700">
-                {contactTagRows.map((t) => (
-                  <span
-                    key={t.id}
-                    className="px-2 py-0.5 bg-gray-700 text-gray-300 text-xs rounded-full"
-                  >
-                    {t.name}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
+          <ContactHeader
+            contact={contact}
+            org={org ?? null}
+            tags={contactTagRows}
+            canEdit={canEdit}
+          />
 
           {/* Event participation */}
           {eventParticipations.length > 0 && (
@@ -247,14 +180,23 @@ export default async function ContactDetailPage({ params }: Params) {
                 <table className="w-full table-fixed">
                   <thead>
                     <tr className="border-b border-gray-700/80">
-                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3">Event</th>
-                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-36">Invite</th>
-                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-36">RSVP</th>
+                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3">
+                        Event
+                      </th>
+                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-36">
+                        Invite
+                      </th>
+                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-36">
+                        RSVP
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-700/40">
                     {eventParticipations.map((ep) => (
-                      <tr key={ep.inviteeId} className="hover:bg-white/[0.02] transition-colors">
+                      <tr
+                        key={ep.inviteeId}
+                        className="hover:bg-white/[0.02] transition-colors"
+                      >
                         <td className="px-4 py-3 min-w-0">
                           <Link
                             href={`/events/${ep.eventId}`}
@@ -304,9 +246,8 @@ export default async function ContactDetailPage({ params }: Params) {
           </div>
         </div>
 
-        {/* Right column: relationships + edit */}
+        {/* Right column: agency relationships */}
         <div className="space-y-5">
-          {/* Agency relationships */}
           <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
             <h2 className="text-white font-medium text-sm mb-3">
               Agency relationships
@@ -320,31 +261,13 @@ export default async function ContactDetailPage({ params }: Params) {
                     key={r.agencyId}
                     className="flex items-center justify-between"
                   >
-                    <span className="text-gray-300 text-sm">
-                      {r.agencyName}
-                    </span>
+                    <span className="text-gray-300 text-sm">{r.agencyName}</span>
                     <StrengthBadge strength={r.relationshipStrength} />
                   </div>
                 ))}
               </div>
             )}
           </div>
-
-          {/* Edit form */}
-          {canEdit && (
-            <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
-              <h2 className="text-white font-medium text-sm mb-3">
-                Edit contact
-              </h2>
-              <EditContactForm
-                contact={contact}
-                agencies={allAgencies}
-                relationships={relationships}
-                currentUserAgencyId={user.agencyId}
-                currentUserRole={user.role}
-              />
-            </div>
-          )}
         </div>
       </div>
     </div>
