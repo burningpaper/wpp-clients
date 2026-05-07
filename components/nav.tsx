@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Building2, Upload, Search, LogOut, CalendarDays, ShieldCheck } from "lucide-react";
+import { Users, Building2, Upload, Search, LogOut, CalendarDays, ShieldCheck, Database } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const links = [
@@ -75,13 +75,25 @@ export function Nav({ userName, agencyName, role }: NavProps) {
               href="/admin/users"
               className={cn(
                 "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors",
-                pathname.startsWith("/admin")
+                pathname === "/admin/users"
                   ? "bg-blue-600 text-white"
                   : "text-gray-400 hover:text-white hover:bg-gray-800"
               )}
             >
               <ShieldCheck className="w-4 h-4 shrink-0" />
               Users
+            </Link>
+            <Link
+              href="/admin/organisations"
+              className={cn(
+                "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors",
+                pathname === "/admin/organisations"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800"
+              )}
+            >
+              <Database className="w-4 h-4 shrink-0" />
+              Org data
             </Link>
           </>
         )}
