@@ -104,6 +104,7 @@ export default async function AdminUsersPage() {
                   email: u.email,
                   role: u.role,
                   agencyId: u.agencyId,
+                  hasPassword: !!u.passwordHash,
                 }}
                 agencies={allAgencies.map((a) => ({ id: a.id, name: a.name }))}
                 currentUserId={user.id}

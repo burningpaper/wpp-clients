@@ -127,6 +127,7 @@ export const users = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     email: text("email").notNull().unique(),
     name: text("name"),
+    passwordHash: text("password_hash"),
     agencyId: uuid("agency_id").references(() => agencies.id),
     role: roleEnum("role").notNull().default("account_director"),
     isChampion: boolean("is_champion").notNull().default(false),

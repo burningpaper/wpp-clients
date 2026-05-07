@@ -1,63 +1,41 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 import { db } from "@/db";
-import { users, agencies } from "@/db/schema";
+import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-
-const DOMAIN_TO_AGENCY: Record<string, string> = {
-  "ogilvy.com": "Ogilvy",
-  "groupm.com": "GroupM",
-  "grey.com": "Grey",
-  "wundermanthompson.com": "Wunderman Thompson",
-  "vmlyr.com": "VMLY&R",
-  "mindshare.com": "Mindshare",
-  "mediacom.com": "MediaCom",
-};
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         const email = (credentials?.email as string | undefined)?.trim().toLowerCase();
-        if (!email) return null;
+        const password = credentials?.password as string | undefined;
 
-        // Get or create the user
-        let [user] = await db
+        if (!email || !password) return null;
+
+        const [user] = await db
           .select()
           .from(users)
           .where(eq(users.email, email))
           .limit(1);
 
-        if (!user) {
-          // Attempt to auto-assign agency from email domain
-          // @wpp.com is the holding-company domain — leave agencyId null and prompt in UI
-          const domain = email.split("@")[1];
-          let agencyId: string | undefined;
+        // Unknown email or no password set yet
+        if (!user || !user.passwordHash) return null;
 
-          if (domain && domain !== "wpp.com" && DOMAIN_TO_AGENCY[domain]) {
-            const [agency] = await db
-              .select()
-              .from(agencies)
-              .where(eq(agencies.name, DOMAIN_TO_AGENCY[domain]))
-              .limit(1);
-            if (agency) agencyId = agency.id;
-          }
-
-          [user] = await db
-            .insert(users)
-            .values({ email, agencyId, role: "account_director", isChampion: false })
-            .returning();
-        }
+        const valid = await bcrypt.compare(password, user.passwordHash);
+        if (!valid) return null;
 
         return { id: user.id, email: user.email, name: user.name };
       },
     }),
   ],
 
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 }, // 30 days
 
   callbacks: {
     async session({ session, token }) {
