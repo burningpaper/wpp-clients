@@ -45,6 +45,9 @@ export default async function EventDetailPage({ params }: Params) {
       title: contacts.title,
       email: contacts.email,
       company: contacts.company,
+      mobileNumber: contacts.mobileNumber,
+      city: contacts.city,
+      country: contacts.country,
       orgName: organisations.name,
     })
     .from(eventInvitees)
@@ -200,7 +203,7 @@ export default async function EventDetailPage({ params }: Params) {
           </Link>
         </div>
       ) : (
-        <EventInviteesTable invitees={inviteesWithAgencies} eventId={id} />
+        <EventInviteesTable invitees={inviteesWithAgencies} eventId={id} eventName={event.name} />
       )}
     </div>
   );

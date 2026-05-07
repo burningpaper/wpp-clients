@@ -3,13 +3,14 @@
 import { useTransition, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { X } from "lucide-react";
+import { X, Download } from "lucide-react";
 import {
   updateInviteeStatus,
   removeInvitee,
 } from "@/app/(app)/events/actions";
+import { ExportModal } from "@/components/export-modal";
 
-type Invitee = {
+export type Invitee = {
   id: string;
   inviteStatus: string | null;
   rsvpStatus: string | null;
@@ -20,6 +21,9 @@ type Invitee = {
   title: string | null;
   email: string | null;
   company: string | null;
+  mobileNumber: string | null;
+  city: string | null;
+  country: string | null;
   orgName: string | null;
   agencyNames: string[];
 };
@@ -78,14 +82,17 @@ function sortValue(inv: Invitee, key: SortKey): string {
 export function EventInviteesTable({
   invitees,
   eventId,
+  eventName,
 }: {
   invitees: Invitee[];
   eventId: string;
+  eventName: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [sortBy, setSortBy] = useState<SortKey>("firstName");
   const [filterInvite, setFilterInvite] = useState<string>("all");
+  const [exportOpen, setExportOpen] = useState(false);
 
   const filtered = useMemo(
     () => filterInvite === "all" ? invitees : invitees.filter((i) => i.inviteStatus === filterInvite),
@@ -116,6 +123,14 @@ export function EventInviteesTable({
   }
 
   return (
+    <>
+    {exportOpen && (
+      <ExportModal
+        invitees={invitees}
+        eventName={eventName}
+        onClose={() => setExportOpen(false)}
+      />
+    )}
     <div className={isPending ? "opacity-60 pointer-events-none" : ""}>
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-white font-medium text-base">
@@ -150,6 +165,13 @@ export function EventInviteesTable({
               ))}
             </select>
           </div>
+          <button
+            onClick={() => setExportOpen(true)}
+            className="flex items-center gap-1.5 text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 text-xs px-3 py-1.5 rounded-lg transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Export
+          </button>
         </div>
       </div>
 
@@ -253,5 +275,6 @@ export function EventInviteesTable({
         </table>
       </div>
     </div>
+    </>
   );
 }
