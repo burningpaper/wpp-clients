@@ -130,7 +130,7 @@ export function UserRow({ user, agencies, currentUserId }: Props) {
         </td>
 
         {/* Password + status */}
-        <td className="px-5 py-3.5 w-36 text-right">
+        <td className="px-5 py-3.5 text-right">
           <div className="flex items-center justify-end gap-2">
             {isPending ? (
               <Loader2 className="w-3.5 h-3.5 text-gray-500 animate-spin" />

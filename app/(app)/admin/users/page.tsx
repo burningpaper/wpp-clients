@@ -88,10 +88,12 @@ export default async function AdminUsersPage() {
               <th className="text-left text-xs font-medium text-gray-500 px-5 py-3 w-40">
                 Role
               </th>
-              <th className="text-left text-xs font-medium text-gray-500 px-5 py-3 w-52">
+              <th className="text-left text-xs font-medium text-gray-500 px-5 py-3 w-48">
                 Agency
               </th>
-              <th className="w-10 px-5 py-3" />
+              <th className="text-right text-xs font-medium text-gray-500 px-5 py-3 w-44">
+                Password
+              </th>
             </tr>
           </thead>
           <tbody>
