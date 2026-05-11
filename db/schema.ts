@@ -94,6 +94,7 @@ export const priorityFlagEnum = pgEnum("priority_flag", ["yes", "other"]);
 export const associationTypeEnum = pgEnum("association_type", [
   "client_of",
   "ex_client_of",
+  "staff_of",
   "other",
 ]);
 

@@ -9,7 +9,7 @@ type Relationship = {
   agencyId: string;
   agencyName: string;
   relationshipStrength: "cold" | "warm" | "strong";
-  associationType: "client_of" | "ex_client_of" | "other" | null;
+  associationType: "client_of" | "ex_client_of" | "staff_of" | "other" | null;
 };
 
 type Agency = {
@@ -28,12 +28,14 @@ type Props = {
 const ASSOC_LABELS: Record<string, string> = {
   client_of: "Client of",
   ex_client_of: "Ex-client of",
+  staff_of: "Staff of",
   other: "Other",
 };
 
 const ASSOC_COLOURS: Record<string, string> = {
   client_of: "text-blue-400 bg-blue-400/10 border border-blue-400/20",
   ex_client_of: "text-gray-400 bg-gray-700 border border-gray-600",
+  staff_of: "text-green-400 bg-green-400/10 border border-green-400/20",
   other: "text-purple-400 bg-purple-400/10 border border-purple-400/20",
 };
 
@@ -48,7 +50,7 @@ function AssocBadge({ type }: { type: string | null }) {
 
 type EditState = {
   agencyId: string;
-  assocType: "client_of" | "ex_client_of" | "other";
+  assocType: "client_of" | "ex_client_of" | "staff_of" | "other";
   strength: "cold" | "warm" | "strong";
   saving: boolean;
   error: string | null;
@@ -74,7 +76,7 @@ export function AgencyRelationships({
   const [newAgencyId, setNewAgencyId] = useState(
     !isAdmin && userAgencyId ? userAgencyId : ""
   );
-  const [newAssocType, setNewAssocType] = useState<"client_of" | "ex_client_of" | "other">("client_of");
+  const [newAssocType, setNewAssocType] = useState<"client_of" | "ex_client_of" | "staff_of" | "other">("client_of");
   const [newStrength, setNewStrength] = useState<"cold" | "warm" | "strong">("cold");
 
   function canEditRelationship(r: Relationship) {
@@ -223,6 +225,7 @@ export function AgencyRelationships({
                     >
                       <option value="client_of">Client of</option>
                       <option value="ex_client_of">Ex-client of</option>
+                      <option value="staff_of">Staff of</option>
                       <option value="other">Other</option>
                     </select>
                   </div>

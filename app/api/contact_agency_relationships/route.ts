@@ -11,7 +11,7 @@ const schema = z.object({
   contactId: z.string().uuid(),
   agencyId: z.string().uuid(),
   relationshipStrength: z.enum(["cold", "warm", "strong"]),
-  associationType: z.enum(["client_of", "ex_client_of", "other"]).optional().nullable(),
+  associationType: z.enum(["client_of", "ex_client_of", "staff_of", "other"]).optional().nullable(),
   lastContactDate: z.string().datetime().optional().nullable(),
   relationshipOwnerId: z.string().uuid().optional().nullable(),
 });
