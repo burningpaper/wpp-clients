@@ -199,7 +199,7 @@ export function EventInviteesTable({
               <tr key={inv.id} className="group hover:bg-white/[0.02] transition-colors">
                 <td className="px-4 py-3 min-w-0">
                   <Link
-                    href={`/contacts/${inv.contactId}`}
+                    href={`/contacts/${inv.contactId}?from=/events/${eventId}`}
                     className="group/link block min-w-0"
                   >
                     <p className="text-white text-sm font-medium group-hover/link:text-blue-400 transition-colors truncate">

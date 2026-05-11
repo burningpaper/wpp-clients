@@ -70,11 +70,12 @@ function RsvpStatusBadge({ status }: { status: string | null }) {
   );
 }
 
-type Params = { params: Promise<{ id: string }> };
+type Params = { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string }> };
 
-export default async function ContactDetailPage({ params }: Params) {
+export default async function ContactDetailPage({ params, searchParams }: Params) {
   const user = await requireAuth();
   const { id } = await params;
+  const { from } = await searchParams;
 
   const [contact] = await db
     .select()
@@ -150,11 +151,11 @@ export default async function ContactDetailPage({ params }: Params) {
     <div className="max-w-4xl">
       {/* Breadcrumb */}
       <Link
-        href="/contacts"
+        href={from ?? "/contacts"}
         className="inline-flex items-center gap-1.5 text-gray-500 hover:text-gray-300 text-sm mb-5 transition-colors"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
-        Back to contacts
+        {from?.startsWith("/events/") ? "Back to event" : "Back to contacts"}
       </Link>
 
       <div className="grid grid-cols-3 gap-6">
