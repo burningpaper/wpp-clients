@@ -91,6 +91,12 @@ export const rsvpStatusEnum = pgEnum("rsvp_status", [
 
 export const priorityFlagEnum = pgEnum("priority_flag", ["yes", "other"]);
 
+export const associationTypeEnum = pgEnum("association_type", [
+  "client_of",
+  "ex_client_of",
+  "other",
+]);
+
 // ---------------------------------------------------------------------------
 // Custom column types
 // ---------------------------------------------------------------------------
@@ -188,6 +194,7 @@ export const contactAgencyRelationships = pgTable(
       .references(() => agencies.id),
     relationshipStrength:
       relationshipStrengthEnum("relationship_strength").notNull(),
+    associationType: associationTypeEnum("association_type"),
     lastContactDate: timestamp("last_contact_date", { withTimezone: true }),
     relationshipOwnerId: uuid("relationship_owner_id").references(
       () => users.id

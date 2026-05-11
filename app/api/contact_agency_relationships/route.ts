@@ -11,6 +11,7 @@ const schema = z.object({
   contactId: z.string().uuid(),
   agencyId: z.string().uuid(),
   relationshipStrength: z.enum(["cold", "warm", "strong"]),
+  associationType: z.enum(["client_of", "ex_client_of", "other"]).optional().nullable(),
   lastContactDate: z.string().datetime().optional().nullable(),
   relationshipOwnerId: z.string().uuid().optional().nullable(),
 });
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
       contactId: d.contactId,
       agencyId: d.agencyId,
       relationshipStrength: d.relationshipStrength,
+      associationType: d.associationType ?? null,
       lastContactDate: d.lastContactDate ? new Date(d.lastContactDate) : null,
       relationshipOwnerId: d.relationshipOwnerId ?? null,
     })
@@ -42,6 +44,7 @@ export async function POST(req: Request) {
       ],
       set: {
         relationshipStrength: d.relationshipStrength,
+        associationType: d.associationType ?? null,
         lastContactDate: d.lastContactDate
           ? new Date(d.lastContactDate)
           : null,
@@ -67,6 +70,7 @@ export async function PUT(req: Request) {
     .update(contactAgencyRelationships)
     .set({
       relationshipStrength: d.relationshipStrength,
+      associationType: d.associationType ?? null,
       lastContactDate: d.lastContactDate ? new Date(d.lastContactDate) : null,
       relationshipOwnerId: d.relationshipOwnerId ?? null,
     })

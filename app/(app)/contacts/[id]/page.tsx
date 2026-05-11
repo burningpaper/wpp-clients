@@ -8,7 +8,6 @@ import {
   intelligenceNotes,
   contactTags,
   tags,
-  users,
   eventInvitees,
   events,
 } from "@/db/schema";
@@ -16,10 +15,10 @@ import { eq, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CalendarDays } from "lucide-react";
-import { StrengthBadge } from "@/components/strength-badge";
 import { IntelligenceNotesList } from "@/components/intelligence-notes-list";
 import { AddNoteForm } from "@/components/add-note-form";
 import { ContactHeader } from "@/components/contact-header";
+import { AgencyRelationships } from "@/components/agency-relationships";
 
 export const dynamic = "force-dynamic";
 
@@ -98,6 +97,7 @@ export default async function ContactDetailPage({ params }: Params) {
       agencyId: contactAgencyRelationships.agencyId,
       agencyName: agencies.name,
       relationshipStrength: contactAgencyRelationships.relationshipStrength,
+      associationType: contactAgencyRelationships.associationType,
       lastContactDate: contactAgencyRelationships.lastContactDate,
       relationshipOwnerId: contactAgencyRelationships.relationshipOwnerId,
     })
@@ -248,26 +248,13 @@ export default async function ContactDetailPage({ params }: Params) {
 
         {/* Right column: agency relationships */}
         <div className="space-y-5">
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
-            <h2 className="text-white font-medium text-sm mb-3">
-              Agency relationships
-            </h2>
-            {relationships.length === 0 ? (
-              <p className="text-gray-500 text-sm">No relationships yet.</p>
-            ) : (
-              <div className="space-y-2.5">
-                {relationships.map((r) => (
-                  <div
-                    key={r.agencyId}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-gray-300 text-sm">{r.agencyName}</span>
-                    <StrengthBadge strength={r.relationshipStrength} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <AgencyRelationships
+            contactId={id}
+            relationships={relationships}
+            allAgencies={allAgencies}
+            userRole={user.role}
+            userAgencyId={user.agencyId ?? null}
+          />
         </div>
       </div>
     </div>
