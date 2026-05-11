@@ -326,6 +326,7 @@ export function AgencyRelationships({
             >
               <option value="client_of">Client of</option>
               <option value="ex_client_of">Ex-client of</option>
+              <option value="staff_of">Staff of</option>
               <option value="other">Other</option>
             </select>
           </div>
