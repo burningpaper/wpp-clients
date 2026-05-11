@@ -1,5 +1,9 @@
--- Add association_type enum
-CREATE TYPE association_type AS ENUM ('client_of', 'ex_client_of', 'other');
+-- Add association_type enum (idempotent — no IF NOT EXISTS for CREATE TYPE)
+DO $$ BEGIN
+  CREATE TYPE association_type AS ENUM ('client_of', 'ex_client_of', 'other');
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Add nullable association_type column to contact_agency_relationships
 ALTER TABLE contact_agency_relationships
