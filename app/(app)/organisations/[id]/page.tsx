@@ -12,10 +12,11 @@ import {
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Building2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { StrengthBadge } from "@/components/strength-badge";
 import { IntelligenceNotesList } from "@/components/intelligence-notes-list";
 import { AddNoteForm } from "@/components/add-note-form";
+import { OrgHeader } from "@/components/org-header";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,8 @@ export default async function OrganisationDetailPage({ params }: Params) {
   const allAgencies = await db.select().from(agencies);
   const agencyMap = Object.fromEntries(allAgencies.map((a) => [a.id, a.name]));
 
+  const canEdit = user.role === "ceo_md" || user.role === "system_admin";
+
   return (
     <div className="max-w-4xl">
       <Link
@@ -84,39 +87,19 @@ export default async function OrganisationDetailPage({ params }: Params) {
         Back to organisations
       </Link>
 
-      {/* Header */}
-      <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 mb-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gray-700 flex items-center justify-center">
-            <Building2 className="w-6 h-6 text-gray-400" />
-          </div>
-          <div>
-            <h1 className="text-white text-xl font-semibold">{org.name}</h1>
-            <p className="text-gray-400 text-sm mt-0.5">
-              {orgContacts.length} contact
-              {orgContacts.length !== 1 ? "s" : ""}
-            </p>
-          </div>
-        </div>
-        {orgTagRows.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t border-gray-700">
-            {orgTagRows.map((t) => (
-              <span
-                key={t.id}
-                className="px-2 py-0.5 bg-gray-700 text-gray-300 text-xs rounded-full"
-              >
-                {t.name}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
+      <OrgHeader
+        id={org.id}
+        name={org.name}
+        contactCount={orgContacts.length}
+        tags={orgTagRows}
+        canEdit={canEdit}
+      />
 
       <div className="grid grid-cols-3 gap-6">
         {/* Contacts */}
         <div className="col-span-2">
           <h2 className="text-white font-medium text-base mb-3">
-            Contacts at {org.name}
+            Contacts
           </h2>
 
           {orgContacts.length === 0 ? (
