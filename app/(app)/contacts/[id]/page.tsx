@@ -124,7 +124,7 @@ export default async function ContactDetailPage({ params, searchParams }: Params
     .innerJoin(tags, eq(contactTags.tagId, tags.id))
     .where(eq(contactTags.contactId, id));
 
-  const allAgencies = await db.select().from(agencies);
+  const allAgencies = await db.select().from(agencies).orderBy(agencies.name);
 
   const eventParticipations = await db
     .select({

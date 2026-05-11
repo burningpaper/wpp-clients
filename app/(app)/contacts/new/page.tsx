@@ -9,7 +9,7 @@ export default async function NewContactPage() {
   const user = await requireAuth();
 
   const [allAgencies, allOrgs] = await Promise.all([
-    db.select().from(agencies),
+    db.select().from(agencies).orderBy(agencies.name),
     db.select().from(organisations).limit(500),
   ]);
 

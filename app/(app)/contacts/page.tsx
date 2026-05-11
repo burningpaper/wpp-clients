@@ -94,7 +94,7 @@ export default async function ContactsPage({
       .leftJoin(agencies, eq(contactAgencyRelationships.agencyId, agencies.id))
       .where(where),
 
-    db.select().from(agencies),
+    db.select().from(agencies).orderBy(agencies.name),
   ]);
 
   rows.sort((a, b) =>
