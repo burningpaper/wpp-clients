@@ -38,6 +38,7 @@ export default async function EventDetailPage({ params }: Params) {
       id: eventInvitees.id,
       inviteStatus: eventInvitees.inviteStatus,
       rsvpStatus: eventInvitees.rsvpStatus,
+      attended: eventInvitees.attended,
       notes: eventInvitees.notes,
       contactId: contacts.id,
       firstName: contacts.firstName,

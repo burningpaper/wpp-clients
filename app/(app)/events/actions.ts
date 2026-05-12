@@ -92,6 +92,12 @@ export async function updateInviteeStatus(
   revalidatePath(`/events/${eventId}`);
 }
 
+export async function toggleAttended(inviteeId: string, eventId: string, attended: boolean) {
+  await requireAuth();
+  await db.update(eventInvitees).set({ attended }).where(eq(eventInvitees.id, inviteeId));
+  revalidatePath(`/events/${eventId}`);
+}
+
 export async function removeInvitee(inviteeId: string, eventId: string) {
   await requireAuth();
   await db.delete(eventInvitees).where(eq(eventInvitees.id, inviteeId));

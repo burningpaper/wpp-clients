@@ -311,6 +311,7 @@ export const eventInvitees = pgTable(
       .references(() => contacts.id, { onDelete: "cascade" }),
     inviteStatus: inviteStatusEnum("invite_status"),
     rsvpStatus: rsvpStatusEnum("rsvp_status"),
+    attended: boolean("attended").notNull().default(false),
     nominated: boolean("nominated").notNull().default(false),
     priority: priorityFlagEnum("priority"),
     nominatingAgencyId: uuid("nominating_agency_id").references(

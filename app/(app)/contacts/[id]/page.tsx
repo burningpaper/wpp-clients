@@ -131,6 +131,7 @@ export default async function ContactDetailPage({ params, searchParams }: Params
       inviteeId: eventInvitees.id,
       inviteStatus: eventInvitees.inviteStatus,
       rsvpStatus: eventInvitees.rsvpStatus,
+      attended: eventInvitees.attended,
       eventId: events.id,
       eventName: events.name,
       isCurrent: events.isCurrent,
@@ -184,11 +185,14 @@ export default async function ContactDetailPage({ params, searchParams }: Params
                       <th className="text-left text-xs font-medium text-gray-500 px-4 py-3">
                         Event
                       </th>
-                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-36">
+                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-28">
                         Invite
                       </th>
-                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-36">
+                      <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-28">
                         RSVP
+                      </th>
+                      <th className="text-center text-xs font-medium text-gray-500 px-4 py-3 w-24">
+                        Attended
                       </th>
                     </tr>
                   </thead>
@@ -219,6 +223,13 @@ export default async function ContactDetailPage({ params, searchParams }: Params
                         </td>
                         <td className="px-4 py-3">
                           <RsvpStatusBadge status={ep.rsvpStatus} />
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {ep.attended ? (
+                            <span className="inline-block w-4 h-4 rounded-full bg-green-500/20 border border-green-500/40 text-green-400 text-xs leading-4">✓</span>
+                          ) : (
+                            <span className="text-gray-600 text-xs">—</span>
+                          )}
                         </td>
                       </tr>
                     ))}

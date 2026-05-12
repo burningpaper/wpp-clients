@@ -6,6 +6,7 @@ import Link from "next/link";
 import { X, Download } from "lucide-react";
 import {
   updateInviteeStatus,
+  toggleAttended,
   removeInvitee,
 } from "@/app/(app)/events/actions";
 import { ExportModal } from "@/components/export-modal";
@@ -14,6 +15,7 @@ export type Invitee = {
   id: string;
   inviteStatus: string | null;
   rsvpStatus: string | null;
+  attended: boolean;
   notes: string | null;
   contactId: string;
   firstName: string;
@@ -115,6 +117,13 @@ export function EventInviteesTable({
     });
   }
 
+  function handleAttended(inviteeId: string, attended: boolean) {
+    startTransition(async () => {
+      await toggleAttended(inviteeId, eventId, attended);
+      router.refresh();
+    });
+  }
+
   function handleRemove(inviteeId: string) {
     startTransition(async () => {
       await removeInvitee(inviteeId, eventId);
@@ -188,6 +197,9 @@ export function EventInviteesTable({
               <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-44">
                 RSVP
               </th>
+              <th className="text-center text-xs font-medium text-gray-500 px-4 py-3 w-32">
+                Attended
+              </th>
               <th className="text-left text-xs font-medium text-gray-500 px-4 py-3 w-48">
                 Inviting agencies
               </th>
@@ -248,6 +260,16 @@ export function EventInviteesTable({
                       </option>
                     ))}
                   </select>
+                </td>
+
+                <td className="px-4 py-3 text-center">
+                  <input
+                    type="checkbox"
+                    checked={inv.attended}
+                    onChange={(e) => handleAttended(inv.id, e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-500 cursor-pointer accent-blue-500"
+                    title="Mark as attended"
+                  />
                 </td>
 
                 <td className="px-4 py-3">
