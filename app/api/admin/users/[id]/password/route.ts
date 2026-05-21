@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/auth";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import bcrypt from "bcryptjs";
+import { hash } from "bcryptjs";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +30,7 @@ export async function POST(req: Request, { params }: Params) {
     );
   }
 
-  const passwordHash = await bcrypt.hash(parsed.data.password, 12);
+  const passwordHash = await hash(parsed.data.password, 12);
 
   const [updated] = await db
     .update(users)

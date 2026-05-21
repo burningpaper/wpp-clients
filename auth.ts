@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
+import { compare } from "bcryptjs";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -27,7 +27,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Unknown email or no password set yet
         if (!user || !user.passwordHash) return null;
 
-        const valid = await bcrypt.compare(password, user.passwordHash);
+        const valid = await compare(password, user.passwordHash);
         if (!valid) return null;
 
         return { id: user.id, email: user.email, name: user.name };
