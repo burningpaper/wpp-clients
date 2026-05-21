@@ -20,6 +20,7 @@ type SearchParams = {
   q?: string;
   strength?: string;
   agency?: string;
+  page?: string;
 };
 
 export default async function ContactsPage({
@@ -32,6 +33,8 @@ export default async function ContactsPage({
   const q = (sp.q ?? "").trim();
   const strengthFilter = sp.strength as "cold" | "warm" | "strong" | undefined;
   const agencyFilter = sp.agency;
+  const page = Math.max(1, parseInt(sp.page ?? "1", 10) || 1);
+  const offset = (page - 1) * PAGE_SIZE;
 
   const conditions = [];
 
@@ -59,7 +62,7 @@ export default async function ContactsPage({
 
   const [rows, [{ total }], allAgencies] = await Promise.all([
     db
-      .selectDistinctOn([contacts.id], {
+      .selectDistinctOn([contacts.firstName, contacts.lastName, contacts.id], {
         id: contacts.id,
         firstName: contacts.firstName,
         lastName: contacts.lastName,
@@ -80,8 +83,9 @@ export default async function ContactsPage({
       )
       .leftJoin(agencies, eq(contactAgencyRelationships.agencyId, agencies.id))
       .where(where)
-      .orderBy(contacts.id)
-      .limit(PAGE_SIZE),
+      .orderBy(contacts.firstName, contacts.lastName, contacts.id)
+      .limit(PAGE_SIZE)
+      .offset(offset),
 
     db
       .select({ total: sql<number>`COUNT(DISTINCT ${contacts.id})::int` })
@@ -97,11 +101,21 @@ export default async function ContactsPage({
     db.select().from(agencies).orderBy(agencies.name),
   ]);
 
-  rows.sort((a, b) =>
-    a.firstName.localeCompare(b.firstName) || a.lastName.localeCompare(b.lastName)
-  );
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  const isCapped = rows.length < total;
+  // Build a URL for a given page, preserving existing filters
+  function pageUrl(p: number) {
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (sp.strength) params.set("strength", sp.strength);
+    if (sp.agency) params.set("agency", sp.agency);
+    if (p > 1) params.set("page", String(p));
+    const qs = params.toString();
+    return `/contacts${qs ? `?${qs}` : ""}`;
+  }
+
+  const start = offset + 1;
+  const end = Math.min(offset + rows.length, total);
 
   return (
     <div>
@@ -109,8 +123,10 @@ export default async function ContactsPage({
         <div>
           <h1 className="text-white text-2xl font-semibold">Contacts</h1>
           <p className="text-gray-400 text-sm mt-0.5">
-            {isCapped
-              ? `Showing ${rows.length} of ${total} contacts`
+            {total === 0
+              ? "No contacts"
+              : totalPages > 1
+              ? `${start}–${end} of ${total} contact${total !== 1 ? "s" : ""}`
               : `${total} contact${total !== 1 ? "s" : ""}`}
             {q ? ` matching "${q}"` : ""}
           </p>
@@ -127,20 +143,11 @@ export default async function ContactsPage({
       {/* Search + filters */}
       <ContactsFilter agencies={allAgencies} />
 
-      {/* Cap notice */}
-      {isCapped && !q && (
-        <p className="mt-3 text-xs text-gray-500">
-          Showing the first {PAGE_SIZE} contacts — use the search box to find anyone specific.
-        </p>
-      )}
-
       {/* Contact list */}
       <div className="mt-4 space-y-1">
         {rows.length === 0 ? (
           <div className="text-center py-16 text-gray-500">
-            {q
-              ? `No contacts match "${q}"`
-              : "No contacts yet. Add the first one."}
+            {q ? `No contacts match "${q}"` : "No contacts yet. Add the first one."}
           </div>
         ) : (
           rows.map((row) => (
@@ -149,7 +156,6 @@ export default async function ContactsPage({
               href={`/contacts/${row.id}`}
               className="flex items-center gap-4 bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-gray-600 rounded-lg px-4 py-3.5 transition-all group"
             >
-              {/* Avatar */}
               <div className="w-9 h-9 rounded-full bg-gray-700 flex items-center justify-center shrink-0">
                 <span className="text-gray-300 text-sm font-medium">
                   {row.firstName[0]}
@@ -180,8 +186,68 @@ export default async function ContactsPage({
           ))
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-1 mt-6">
+          <Link
+            href={pageUrl(page - 1)}
+            aria-disabled={page === 1}
+            className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+              page === 1
+                ? "text-gray-600 pointer-events-none"
+                : "text-gray-400 hover:text-white hover:bg-gray-700"
+            }`}
+          >
+            ← Prev
+          </Link>
+
+          {pageNumbers(page, totalPages).map((p, i) =>
+            p === null ? (
+              <span key={`ellipsis-${i}`} className="px-2 text-gray-600 text-sm select-none">…</span>
+            ) : (
+              <Link
+                key={p}
+                href={pageUrl(p)}
+                className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm transition-colors ${
+                  p === page
+                    ? "bg-blue-600 text-white font-medium"
+                    : "text-gray-400 hover:text-white hover:bg-gray-700"
+                }`}
+              >
+                {p}
+              </Link>
+            )
+          )}
+
+          <Link
+            href={pageUrl(page + 1)}
+            aria-disabled={page === totalPages}
+            className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+              page === totalPages
+                ? "text-gray-600 pointer-events-none"
+                : "text-gray-400 hover:text-white hover:bg-gray-700"
+            }`}
+          >
+            Next →
+          </Link>
+        </div>
+      )}
     </div>
   );
+}
+
+// Returns page numbers with nulls for ellipsis gaps: [1, null, 4, 5, 6, null, 12]
+function pageNumbers(current: number, total: number): (number | null)[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages: (number | null)[] = [1];
+  if (current > 3) pages.push(null);
+  for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) {
+    pages.push(p);
+  }
+  if (current < total - 2) pages.push(null);
+  pages.push(total);
+  return pages;
 }
 
 function timeAgo(date: Date): string {
